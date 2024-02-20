@@ -1,23 +1,32 @@
-import logo from './logo.svg';
-import './App.css';
+import axios from 'axios';
+import React, { useState } from 'react';
 
 function App() {
+  const [users, setUsers] = useState([]);
+
+  const getUsers = async () => {
+    const response = await axios.get('http://localhost:5001/users');
+    setUsers(response.data);
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    <div>
+      <h1 className="flex flex-row justify-center font-bold text-4xl">Comet Marketplace</h1>
+      <div className="flex flex-row justify-center">
+        <button
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          onClick={async () => {
+            await getUsers();
+          }}
         >
-          Learn React
-        </a>
-      </header>
+          Click me!
+        </button>
+        <ul>
+          {users.map(user => (
+            <li key={user.id}>{user.name}</li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }
