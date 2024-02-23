@@ -1,5 +1,8 @@
 import axios from 'axios';
 import React, { useState } from 'react';
+import Navbar from './components/Navbar';
+import logo from './images/comet-marketplace-logo-artdecor.png';
+
 
 function App() {
   const [users, setUsers] = useState([]);
@@ -11,22 +14,11 @@ function App() {
 
   return (
     <div>
-      <h1 className="flex flex-row justify-center font-bold text-4xl">Comet Marketplace</h1>
-      <div className="flex flex-row justify-center">
-        <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          onClick={async () => {
-            await getUsers();
-          }}
-        >
-          Click me!
-        </button>
-        <ul>
-          {users.map(user => (
-            <li key={user.id}>{user.name}</li>
-          ))}
-        </ul>
+      <div className="flex flex-row justify-center items-center h-16 w-full px-4 ">
+        <img className="h-12 w-12 mr-4 cursor-pointer" src={logo} alt="Logo" />
+        <h1 className="font-bold text-2xl cursor-pointer">Comet Marketplace</h1>
       </div>
+      <Navbar />
     </div>
   );
 }
