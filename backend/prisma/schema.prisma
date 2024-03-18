@@ -1,37 +1,87 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-generator client {
-  provider = "prisma-client-js"
-}
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-model Post {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  title     String   @db.VarChar(255)
-  content   String?
-  published Boolean  @default(false)
-  author    User     @relation(fields: [authorId], references: [id])
-  authorId  Int
+generator client {
+  provider = "prisma-client-js"
 }
 
-model Profile {
-  id     Int     @id @default(autoincrement())
-  bio    String?
-  user   User    @relation(fields: [userId], references: [id])
-  userId Int     @unique
+enum UserRole {
+  ADMIN
+  SUPERVISOR
+  EMPLOYEE
 }
 
 model User {
-  id      Int      @id @default(autoincrement())
-  email   String   @unique
-  name    String?
-  posts   Post[]
-  profile Profile?
+  id                            Int                             @id @default(autoincrement())
+  name                          String
+  email                         String                          @unique
+  role                          UserRole                        @default(EMPLOYEE)
+  DepartmentUserMapping         DepartmentUserMapping[]
+  SupervisorTaskMapping         SupervisorTaskMapping[]
+  OnboardingEmployeeTaskMapping OnboardingEmployeeTaskMapping[]
+  archived                      Boolean                         @default(false)
+}
+
+model Task {
+  id                            Int                             @id @default(autoincrement())
+  desc                          String                          @unique
+  tag                           String[]
+  DepartmentTaskMapping         DepartmentTaskMapping[]
+  SupervisorTaskMapping         SupervisorTaskMapping[]
+  OnboardingEmployeeTaskMapping OnboardingEmployeeTaskMapping[]
+  archived                      Boolean                         @default(false)
+}
+
+model Department {
+  id                            Int                             @id @default(autoincrement())
+  name                          String                          @unique
+  DepartmentTaskMapping         DepartmentTaskMapping[]
+  DepartmentUserMapping         DepartmentUserMapping[]
+  OnboardingEmployeeTaskMapping OnboardingEmployeeTaskMapping[]
+  SupervisorTaskMapping         SupervisorTaskMapping[]
+  archived                      Boolean                         @default(false)
+}
+
+model DepartmentTaskMapping {
+  id           Int        @id @default(autoincrement())
+  task         Task       @relation(fields: [taskId], references: [id])
+  taskId       Int        @unique
+  department   Department @relation(fields: [departmentId], references: [id])
+  departmentId Int        @unique
+  archived     Boolean    @default(false)
+}
+
+model DepartmentUserMapping {
+  id           Int        @id @default(autoincrement())
+  user         User       @relation(fields: [userId], references: [id])
+  userId       Int
+  department   Department @relation(fields: [departmentId], references: [id])
+  departmentId Int
+  archived     Boolean    @default(false)
+}
+
+model SupervisorTaskMapping {
+  id           Int        @id @default(autoincrement())
+  user         User       @relation(fields: [userId], references: [id])
+  userId       Int
+  task         Task       @relation(fields: [taskId], references: [id])
+  taskId       Int
+  department   Department @relation(fields: [departmentId], references: [id])
+  departmentId Int
+  archived     Boolean    @default(false)
+}
+
+model OnboardingEmployeeTaskMapping {
+  id            Int        @id @default(autoincrement())
+  user          User       @relation(fields: [userId], references: [id])
+  userId        Int
+  task          Task       @relation(fields: [taskId], references: [id])
+  taskId        Int
+  department    Department @relation(fields: [departmentId], references: [id])
+  departmentId  Int
+  taskCompleted Boolean    @default(false)
+  dateCompleted DateTime?
+  archived      Boolean    @default(false)
 }

@@ -7,7 +7,7 @@ services:
       - POSTGRES_DATABASE=postgres
       - POSTGRES_PASSWORD=postgres
     ports:
-      - '5000:5432'
+      - '5001:5432'
     volumes:
       - commetmarketplace-db:/var/lib/postgresql/data
 volumes:
