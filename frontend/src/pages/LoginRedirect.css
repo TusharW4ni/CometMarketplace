@@ -1,0 +1,11 @@
+.logo {
+  width: 300px;
+  border-radius: 10%;
+  animation: logo-animation 2s infinite;
+}
+
+@keyframes logo-animation {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}

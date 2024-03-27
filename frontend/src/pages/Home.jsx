@@ -15,14 +15,7 @@ export default function Home() {
   return (
     <div>
       <Navbar />
-      <div className="flex justify-between">
-        {products.map((product) => (
-          <div key={product.id} className="bg-white mt-10">
-            <h2>{product.name}</h2>
-            <p>{product.price}</p>
-          </div>
-        ))}
-      </div>
+      <h1>Home</h1>
     </div>
   );
 }
