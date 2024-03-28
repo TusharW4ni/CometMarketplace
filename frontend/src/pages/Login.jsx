@@ -12,9 +12,24 @@ export default function Login() {
           style={{ width: 300, borderRadius: '10%' }}
           draggable="false"
         />
-        <Button color="orange" onClick={() => loginWithRedirect()}>
-          Login
-        </Button>
+        <div className="flex space-x-10">
+          <Button color="orange" onClick={() => loginWithRedirect()}>
+            Login
+          </Button>
+          <Button
+            color="orange"
+            variant="outline"
+            onClick={() =>
+              loginWithRedirect({
+                authorizationParams: {
+                  screen_hint: 'signup',
+                },
+              })
+            }
+          >
+            Sign Up
+          </Button>
+        </div>
       </div>
     </div>
   );
