@@ -1,24 +1,34 @@
 import Navbar from '../components/Navbar';
-import { FileButton, Button } from '@mantine/core';
+import { Button } from '@mantine/core';
 import { useState, useEffect } from 'react';
-import { Avatar } from '@mantine/core';
 import { useAuth0 } from '@auth0/auth0-react';
 import FormData from 'form-data';
 import axios from 'axios';
 
 export default function MakePost() {
+  const [currUser, setCurrUser] = useState(null);
+  const { user } = useAuth0();
   const [files, setFiles] = useState([]);
   const [previewUrls, setPreviewUrls] = useState([]);
   const [price, setPrice] = useState('');
   const [formData, setFormData] = useState({
     title: '',
     price: 0,
-    description: '',
-  })
+    desc: '',
+  });
+  const [isPosted, setIsPosted] = useState(false);
 
   useEffect(() => {
-    console.log("formData", formData);
-  }, [formData]);
+    const fetchUser = async () => {
+      const response = await axios.post(
+        `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/getUser`,
+        { email: user.email },
+      );
+      setCurrUser(response.data);
+      setFormData({ ...formData, userId: response.data.id });
+    };
+    fetchUser();
+  }, []);
 
   const handleFileChange = (event) => {
     const uploadedFiles = Array.from(event.target.files);
@@ -51,25 +61,68 @@ export default function MakePost() {
   };
 
   const handleSubmit = async () => {
-    let photos = new FormData();
+    let newPostId;
+    try {
+      const res1 = await axios.post(
+        `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/user/new-post`,
+        formData,
+      );
+      newPostId = res1.data.postId;
+    } catch (error) {
+      console.error(error);
+    }
+
+    let formDataObj = new FormData();
     files.forEach((file) => {
-      photos.append('photos', file);
+      formDataObj.append('files', file);
     });
-    const response = await axios.post('/api/user/new-post', {
-      title: formData.title,
-      price: formData.price,
-      description: formData.description,
-      photos,
-    });
-    console.log(response);
-  }
+    try {
+      await axios.post(
+        `${
+          import.meta.env.VITE_APP_EXPRESS_BASE_URL
+        }/api/user/add-images-to-new-post`,
+        formDataObj,
+        {
+          params: {
+            userId: currUser.id,
+            postId: newPostId,
+          },
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        },
+      );
+      setIsPosted(true);
+      setTimeout(() => {
+        setIsPosted(false);
+        window.location.reload();
+      }, 2000);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <>
       <Navbar />
+      {isPosted && (
+        <div className="text-center py-4 lg:px-4">
+          <div
+            className="p-2 bg-orange-500 items-center text-black leading-none lg:rounded-full flex lg:inline-flex"
+            role="alert"
+          >
+            <span className="flex rounded-full bg-orange-200 uppercase px-2 py-1 text-xs font-bold mr-3">
+              Done
+            </span>
+            <span className="font-semibold mr-2 text-left flex-auto">
+              Your post has been created
+            </span>
+          </div>
+        </div>,
+      )}
       <div className="flex flex-col items-center">
         <div className="space-y-5">
-          <h1 className="text-2xl font-bold text-white">Item for Sale</h1>
+          <h1 className="text-2xl font-bold text-white mt-5">Item for Sale</h1>
           <div className="flex space-x-40">
             <div>
               <Button component="label" htmlFor="fileUpload">
@@ -103,11 +156,14 @@ export default function MakePost() {
               <input
                 type="text"
                 className="w-96 px-3 py-2 border border-gray-300 rounded-md hover:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, title: e.target.value })
+                }
               />
               <label htmlFor="price" className="text-white">
                 Price
               </label>
+
               <input
                 type="text"
                 value={`$${price}`}
@@ -117,10 +173,15 @@ export default function MakePost() {
               <label htmlFor="description" className="text-white">
                 Description
               </label>
-              <textarea className="w-96 px-3 py-2 border border-gray-300 rounded-md hover:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500" onChange={
-                (e) => setFormData({ ...formData, description: e.target.value })
-              }/>
-              <Button color="orange" onClick={handleSubmit}>Post</Button>
+              <textarea
+                className="w-96 px-3 py-2 border border-gray-300 rounded-md hover:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                onChange={(e) =>
+                  setFormData({ ...formData, desc: e.target.value })
+                }
+              />
+              <Button color="orange" onClick={handleSubmit}>
+                Post
+              </Button>
             </div>
           </div>
         </div>

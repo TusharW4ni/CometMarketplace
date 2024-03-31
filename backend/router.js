@@ -5,14 +5,14 @@ const bodyParser = require('body-parser');
 
 const newRouter = express.Router();
 newRouter.use(bodyParser.json());
-newRouter.use(bodyParser.urlencoded({extended: true}));
+newRouter.use(bodyParser.urlencoded({ extended: true }));
 
-fs.readdirSync(path.join(__dirname, './server')).forEach(function(moduleName) {
+fs.readdirSync(path.join(__dirname, './apis')).forEach((moduleName) => {
   const modulePath = path.join(
-      __dirname,
-      './server',
-      moduleName,
-      'subRouter.js',
+    __dirname,
+    './apis',
+    moduleName,
+    'controller.js',
   );
 
   if (fs.existsSync(modulePath)) {

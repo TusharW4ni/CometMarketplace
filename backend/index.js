@@ -12,12 +12,14 @@ app.use(cors(corsOptions));
 const router = require('./router.js');
 app.use(router);
 
-app.use(function(req, res, next) {
+app.use('/uploads', express.static('uploads'));
+
+app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
 
   res.header(
-      'Access-Control-Allow-Headers',
-      'Origin, X-Requested-With, Content-Type, Accept',
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept',
   );
 
   next();
