@@ -1,6 +1,7 @@
 import logo from '../assets/cmlogo.png';
 import MessagesIcon from '../assets/icons/MessagesIcon';
 import SellIcon from '../assets/icons/SellIcon';
+import ShoppingCartIcon from '../assets/icons/ShoppingCartIcon';
 import { ActionIcon, Input, Avatar, Tooltip } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
@@ -43,6 +44,17 @@ export default function Navbar() {
           size="xl"
           color="orange"
           onClick={() => navigate('/messages')}
+        >
+          <MessagesIcon />
+        </ActionIcon>
+      </Tooltip>
+      {/* Shopping Cart Button (Sahaj)*/}
+      <Tooltip label="Cart" position="bottom" openDelay={700}>
+        <ActionIcon
+          variant="filled"
+          size="xl"
+          color="orange"
+          onClick={() => navigate('/cart')}
         >
           <MessagesIcon />
         </ActionIcon>
