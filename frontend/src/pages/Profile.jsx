@@ -1,9 +1,43 @@
+import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
-import { Button } from '@mantine/core';
+import { Button, TextInput } from '@mantine/core';
 import { useAuth0 } from '@auth0/auth0-react';
+import Wishlist from '../components/Wishlist';
 
 export default function Profile() {
   const { logout } = useAuth0();
+  const [showWishlist, setShowWishlist] = useState(false);
+  const [editProfile, setEditProfile] = useState(false);
+  const [profile, setProfile] = useState({
+    displayName: '',
+    username: '',
+    pronouns: '',
+    bio: '',
+  });
+
+  const handleShowWishlist = () => {
+    setShowWishlist(true);
+  };
+
+  const handleEditProfile = () => {
+    setEditProfile(true);
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setProfile(prevState => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
+  const handleSave = () => {
+    console.log('Profile Info:', profile);
+    // Here we would typically handle the saving to a database.
+    alert('Profile successfully updated!');
+    setEditProfile(false);
+  };
+
   return (
     <div>
       <Navbar />
@@ -12,7 +46,48 @@ export default function Profile() {
           Logout
         </Button>
       </div>
-      Profile
+
+      <div className="container mx-auto mt-5">
+        <Button onClick={handleShowWishlist}>
+          Show Wishlist
+        </Button>
+        {showWishlist && <Wishlist />}
+
+        <div className="my-5">
+          <Button onClick={handleEditProfile}>
+            Edit Profile
+          </Button>
+          {editProfile && (
+            <div className="space-y-4">
+              <TextInput
+                placeholder="Display Name"
+                name="displayName"
+                value={profile.displayName}
+                onChange={handleChange}
+              />
+              <TextInput
+                placeholder="Username"
+                name="username"
+                value={profile.username}
+                onChange={handleChange}
+              />
+              <TextInput
+                placeholder="Pronouns"
+                name="pronouns"
+                value={profile.pronouns}
+                onChange={handleChange}
+              />
+              <TextInput
+                placeholder="Bio"
+                name="bio"
+                value={profile.bio}
+                onChange={handleChange}
+              />
+              <Button onClick={handleSave}>Save</Button>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
