@@ -1,9 +1,11 @@
 import React from 'react';
 
 const ItemPage = () => {
+    
+
     return (
         <div>
-            TEST
+            item page
             {}
         </div>
     );

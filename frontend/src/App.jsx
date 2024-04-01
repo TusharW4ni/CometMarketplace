@@ -7,6 +7,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 import Login from './pages/Login';
 import LoginRedirect from './pages/LoginRedirect';
 import ItemPage from './pages/ItemPage';
+import Report from './pages/Report';
 
 export default function App() {
   const { isAuthenticated } = useAuth0();
@@ -21,6 +22,7 @@ export default function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/messages" element={<Messages />} />
           <Route path="/item/:id" element={<ItemPage />} />
+          <Route path="/report" element={<Report />} />
         </Routes>
       </BrowserRouter>
     );
