@@ -82,6 +82,9 @@ export default function Home() {
       <div className="fixed bottom-0 right-0 p-4 bg-gray-200 text-gray-700 hover:cursor-pointer" onClick={() => navigate(`/report`)}>
         [Create Report]
       </div>
+      <div className="fixed bottom-0 left-0 p-4 bg-gray-200 text-gray-700 hover:cursor-pointer" onClick={() => navigate(`/help`)}>
+        [Help/FAQ]
+      </div>
     </div>
   );
 }

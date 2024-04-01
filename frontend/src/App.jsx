@@ -8,6 +8,7 @@ import Login from './pages/Login';
 import LoginRedirect from './pages/LoginRedirect';
 import ItemPage from './pages/ItemPage';
 import Report from './pages/Report';
+import Help from './pages/Help';
 
 export default function App() {
   const { isAuthenticated } = useAuth0();
@@ -23,6 +24,7 @@ export default function App() {
           <Route path="/messages" element={<Messages />} />
           <Route path="/item/:id" element={<ItemPage />} />
           <Route path="/report" element={<Report />} />
+          <Route path="/help" element={<Help />} />
         </Routes>
       </BrowserRouter>
     );
