@@ -7,6 +7,15 @@ import Wishlist from '../components/Wishlist';
 export default function Profile() {
   const { logout } = useAuth0();
   const [showWishlist, setShowWishlist] = useState(false);
+
+  //Sathwik
+  /*
+  The provided code adds an "Edit Profile" feature to a React component,
+  displaying a form with inputs for the user's display name, username, pronouns, and bio
+  when a button is clicked, and allows the user to submit these changes with a "Save" button.
+
+  It will not save the entered data to the database as of phase4.
+  */
   const [editProfile, setEditProfile] = useState(false);
   const [profile, setProfile] = useState({
     displayName: '',
