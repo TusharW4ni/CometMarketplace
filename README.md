@@ -1,13 +1,17 @@
 # CometMarketplace
+
 A marketplace for all Comets to buy and sell items. Only UTD student and faculty can use this platform. It allows for a better experience than what is curretly offered by the UTD app.
 
 ## Setting Up Codebase
+
 ### Prerequisites
+
 - Node.js
 - npm
 - Docker Desktop
 
 ### Steps
+
 1. Clone the repository
 2. Open a terminal and navigate to the root directory of the project
 3. Run `docker compose up`
@@ -20,11 +24,42 @@ A marketplace for all Comets to buy and sell items. Only UTD student and faculty
 10. Run `npm run dev`
 11. Now you can access the website at `http://localhost:5173` in your browser
 12. To look at the database
-    1.  Open another terminal and navigate to the `backend` folder
-    2.  Run `npx prisma studio`
-    3.  Now you can see the database in your browser at `http://localhost:5555`
+    1. Open another terminal and navigate to the `backend` folder
+    2. Run `npx prisma studio`
+    3. Now you can see the database in your browser at `http://localhost:5555`
 13. To stop the project
     1. `Ctrl+C` in the terminal where you ran `npm run dev` in the `backend` folder
     2. `Ctrl+C` in the terminal where you ran `npm run dev` in the `frontend` folder
     3. `Ctrl+C` in the terminal where you ran `docker compose up` in the root directory
     4. Run `docker compose down` in the root directory
+
+## Project Structure
+
+```plaintext
+.
+├── backend
+│   ├── apis
+│   ├── prisma
+│   └── uploads
+├── frontend
+│   ├── public
+│   ├── src
+│   │   ├── assets
+│   │   │   └── icons
+│   │   ├── components
+│   │   ├── pages
+│   │   └── utils
+└── notes
+    ├── backend
+    └── frontend
+```
+
+## Pictures of the Website
+![Login Page](/notes/frontend/photos/login-page.jpeg)
+<p align="center">Login Page</p>
+
+![Home Page](/notes/frontend/photos/home-page.jpeg)
+<p align="center">Home Page</p>
+
+![Make a Post Page](/notes/frontend/photos/make-a-post-page.jpeg)
+<p align="center">Make a Post Page</p>
