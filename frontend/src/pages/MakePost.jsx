@@ -118,7 +118,7 @@ export default function MakePost() {
               Your post has been created
             </span>
           </div>
-        </div>,
+        </div>
       )}
       <div className="flex flex-col items-center">
         <div className="space-y-5">

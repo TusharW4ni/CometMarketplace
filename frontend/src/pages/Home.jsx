@@ -4,8 +4,10 @@ import axios from 'axios';
 import { useAuth0 } from '@auth0/auth0-react';
 import { Carousel } from '@mantine/carousel';
 import { Image } from '@mantine/core';
+import { useNavigate } from 'react-router-dom';
 
 export default function Home() {
+  const navigate = useNavigate();
   const { user } = useAuth0();
   const [posts, setPosts] = useState([]);
   const [currUser, setCurrUser] = useState({});
@@ -43,7 +45,8 @@ export default function Home() {
           posts.map((post) => (
             <div
               key={post.id}
-              className="rounded overflow-hidden shadow-lg p-6 bg-orange-200"
+              className="rounded overflow-hidden shadow-lg p-6 bg-orange-200 hover:cursor-pointer"
+              onClick={() => {navigate(`/item/${post.id}`)}}
             >
               <Carousel withIndicators loop>
                 {post.photos.map((photo) => (
