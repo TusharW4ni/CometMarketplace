@@ -84,6 +84,84 @@ const newPost = async (req, res) => {
   }
 };
 
+//vincent WIP
+const editPost = async (req, res) => {
+  console.log('req to edit', req.body);
+  const{title, desc, price, userId, postId} = req.body;
+  
+  const user = await prisma.user.findUnique({
+    where: { uid: parseInt(userId) },
+  });
+  if (!user)
+  {
+    return res.status(404).json({error: 'User ID not found'});
+  }
+
+  const post = await prisma.user.findUnique({
+    where: { pid: parseInt(postId) },
+  });
+  if(!post)
+  {
+    return res.status(404).json({error: 'Post ID not found'}); 
+  }
+
+  try
+  {
+    const updatedPost = await prisma.post.update({
+      where: {id: parseInt(postId)},
+      data:{
+        title: title,
+        desc: desc,
+        price: parseInt(price),
+      },
+    });
+    return res.status(200).json({ message: 'post edited', postId: updatedPost.id });
+  } catch (error) {
+    console.log('error in /api/user/edit-post', error);
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+//vincent WIP
+const removePost = async(req, res) => {
+  console.log('req to remove', req.body);
+  const{userId, postId} = req.body;
+
+  try {
+
+  
+    const user = await prisma.user.findUnique({
+      where: { uid: parseInt(userId) },
+    });
+    if (!user)
+    {
+      return res.status(404).json({error: 'User ID not found'});
+    }
+
+    const post = await prisma.user.findUnique({
+      where: { pid: parseInt(postId) },
+    });
+    if(!post)
+    {
+      return res.status(404).json({error: 'Post ID not found'});  //404 not found
+    }
+
+    if (post.userId !== user.id)
+    {
+      return res.status(403).json({error: 'User does not have permission to remove post'});  //403 no permission to access
+    }
+
+    await prisma.post.delete({
+      where: {id: parseInt(postId)},
+    });
+
+    return res.status(200).json({ message: 'post removed' }); //success status 200
+  } catch (error) {
+    console.log('error in /api/user/edit-post', error);
+    return res.status(500).json({ error: error.message });  //server error encounter
+  }
+};
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const { userId, postId } = req.query;
