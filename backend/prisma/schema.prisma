@@ -17,12 +17,13 @@ model User {
 
 model Post {
   id           Int      @id @default(autoincrement())
-  title        String
-  desc         String
-  photosFolder String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  title        String?
+  desc         String?
+  price        Int?
+  photosFolder String?
   user         User     @relation(fields: [userId], references: [id])
   userId       Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
   archived     Boolean  @default(false)
 }

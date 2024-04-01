@@ -6,6 +6,7 @@ import Messages from './pages/Messages';
 import { useAuth0 } from '@auth0/auth0-react';
 import Login from './pages/Login';
 import LoginRedirect from './pages/LoginRedirect';
+import ItemPage from './pages/ItemPage';
 
 export default function App() {
   const { isAuthenticated } = useAuth0();
@@ -19,15 +20,11 @@ export default function App() {
           <Route path="/make-post" element={<MakePost />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/messages" element={<Messages />} />
+          <Route path="/item/:id" element={<ItemPage />} />
         </Routes>
       </BrowserRouter>
     );
   } else {
-    return (
-      <div>
-        {/* <h1 className="text-4xl text-center mt-20">Not authenticated</h1> */}
-        <Login /> 
-      </div>
-    );
+    return <Login />;
   }
 }
