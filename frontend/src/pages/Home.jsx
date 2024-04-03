@@ -45,8 +45,7 @@ export default function Home() {
           posts.map((post) => (
             <div
               key={post.id}
-              className="rounded overflow-hidden shadow-lg p-6 bg-orange-200 hover:cursor-pointer"
-              onClick={() => {navigate(`/item/${post.id}`)}}
+              className="rounded overflow-hidden shadow-lg p-6 bg-orange-200"
             >
               <Carousel withIndicators loop>
                 {post.photos.map((photo) => (
@@ -60,24 +59,31 @@ export default function Home() {
                   </Carousel.Slide>
                 ))}
               </Carousel>
-              <div className="px-6 py-4">
-                <div className="font-bold bg-orange-500 p-1 rounded-full justify-center flex text-xl mb-2">
-                  {post.title}
+                <div className="px-6 py-4">
+                  <div className="font-bold bg-orange-500 p-1 rounded-full justify-center flex text-xl mb-2 hover:cursor-pointer"
+                    onClick={() => navigate(`/item/${post.id}`)}>
+                    {post.title}
+                  </div>
+                  <div className="text-gray-700 bg-orange-300 p-1 rounded-full justify-center flex text-base">
+                    ${Number(post.price).toLocaleString('en-US')}
+                  </div>
+                  <p className="text-gray-700 text-base flex justify-center mt-2">
+                    {post.desc}
+                  </p>
                 </div>
-                <div className="text-gray-700 bg-orange-300 p-1 rounded-full justify-center flex text-base">
-                  ${Number(post.price).toLocaleString('en-US')}
-                </div>
-                <p className="text-gray-700 text-base flex justify-center mt-2">
-                  {post.desc}
-                </p>
               </div>
-            </div>
           ))
         ) : (
           <div className="flex items-center h-screen w-screen justify-center">
             <h1 className="text-2xl text-white">No posts available</h1>
           </div>
         )}
+      </div>
+      <div className="fixed bottom-0 right-0 p-4 bg-gray-200 text-gray-700 hover:cursor-pointer" onClick={() => navigate(`/report`)}>
+        [Create Report]
+      </div>
+      <div className="fixed bottom-0 left-0 p-4 bg-gray-200 text-gray-700 hover:cursor-pointer" onClick={() => navigate(`/help`)}>
+        [Help/FAQ]
       </div>
     </div>
   );

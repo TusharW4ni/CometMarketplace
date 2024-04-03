@@ -184,6 +184,20 @@ const addRoutes = (router) => {
   );
   router.get('/api/user/get-posts/:userId', getUserPosts);
   router.get('/api/getAllPosts', getAllPosts);
+  router.get('/api/getPostNameFromId/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+      const post = await prisma.post.findUnique({
+        where: {
+          id: parseInt(id),
+        },
+      });
+      res.status(200).json(post);
+    } catch (error) {
+      console.log('error in /api/getPostNameFromId/:id', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
 };
 
 module.exports = {
