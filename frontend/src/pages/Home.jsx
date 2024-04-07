@@ -19,6 +19,7 @@ export default function Home() {
           `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/getUser`,
           { email: user.email },
         );
+        
         setCurrUser(userRes.data);
         const postsRes = await axios.get(
           `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/user/get-posts/${
