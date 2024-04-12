@@ -9,6 +9,10 @@ const io = require('socket.io')(5002, {
 });
 io.on("connection", (socket) => {
   console.log("a user connected", socket.id);
+  socket.on("chat message", (msg) => {
+    console.log("message " + msg);
+    io.emit("chat message", msg); // send to all clients
+  });
 })
 
 const app = express();
