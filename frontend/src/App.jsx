@@ -9,8 +9,8 @@ import LoginRedirect from './pages/LoginRedirect';
 import ItemPage from './pages/ItemPage';
 import { io } from 'socket.io-client';
 
-console.log('Creating socket connection...'); // Add this line
-const socket = io(`${import.meta.env.VITE_APP_SOCKET_BASE_URL}`);
+// console.log('Creating socket connection...'); // Add this line
+// const socket = io(`${import.meta.env.VITE_APP_SOCKET_BASE_URL}`);
 
 export default function App() {
   const { isAuthenticated } = useAuth0();
