@@ -106,7 +106,7 @@ export default function MakePost() {
     <>
       <Navbar />
       {isPosted && (
-        <div className="text-center py-4 lg:px-4">
+        <div className="mt-16 text-center py-4 lg:px-4">
           <div
             className="p-2 bg-orange-500 items-center text-black leading-none lg:rounded-full flex lg:inline-flex"
             role="alert"
@@ -120,7 +120,7 @@ export default function MakePost() {
           </div>
         </div>
       )}
-      <div className="flex flex-col items-center">
+      <div className="mt-16 flex flex-col items-center">
         <div className="space-y-5">
           <h1 className="text-2xl font-bold text-white mt-5">Item for Sale</h1>
           <div className="flex space-x-40">
