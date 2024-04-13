@@ -2,8 +2,7 @@
 CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
     "email" TEXT NOT NULL,
-    "password" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
+    "name" TEXT,
     "archived" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
@@ -12,12 +11,13 @@ CREATE TABLE "User" (
 -- CreateTable
 CREATE TABLE "Post" (
     "id" SERIAL NOT NULL,
-    "title" TEXT NOT NULL,
-    "desc" TEXT NOT NULL,
-    "photosFolder" TEXT NOT NULL,
+    "title" TEXT,
+    "desc" TEXT,
+    "price" INTEGER,
+    "photosFolder" TEXT,
+    "userId" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "userId" INTEGER NOT NULL,
     "archived" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "Post_pkey" PRIMARY KEY ("id")

@@ -9,7 +9,7 @@ export default function Navbar() {
   const navigate = useNavigate();
   const { user } = useAuth0();
   return (
-    <div className="flex p-2 bg-emerald-700 justify-between items-center">
+    <div className="flex fixed top-0 z-50 w-full p-2 bg-emerald-700 justify-between items-center">
       {/* Logo */}
       <Tooltip label="Home" position="bottom" openDelay={700}>
         <img
