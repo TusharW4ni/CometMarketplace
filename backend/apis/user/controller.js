@@ -172,6 +172,37 @@ const getAllPosts = async (req, res) => {
   }
 };
 
+//Keejun
+const removePost = async (req, res) => {
+  console.log('Request to remove post: ', req.body); // Log the request
+  const { userId, postId } = req.body;   // Extract both from the request
+
+  try {
+    // Find user by ID
+    const user = await prisma.user.findUnique({ where: { id: parseInt(userId) } });
+    // Return 404 if user not found
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    // Find post by ID
+    const post = await prisma.post.findUnique({ where: { id: parseInt(postId) } });
+    // Return 404 if post not found
+    if (!post) return res.status(404).json({ error: 'Post not found' });
+
+    // Check if user owns the post
+    if (post.userId !== user.id) return res.status(403).json({ error: 'User cannot remove this post' });
+
+    // Delete the post
+    await prisma.post.delete({ where: { id: parseInt(postId) } });
+
+    // Success response
+    res.status(200).json({ message: 'Post removed' });
+  } catch (error) {
+    // Error handling
+    console.error('Error in /api/user/remove-post:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 const addRoutes = (router) => {
   router.post('/api/getUser', getUser);
   router.get('/api/getUserById/:id', getUserById);
@@ -184,6 +215,8 @@ const addRoutes = (router) => {
   );
   router.get('/api/user/get-posts/:userId', getUserPosts);
   router.get('/api/getAllPosts', getAllPosts);
+  //delete post route
+  router.delete('/api/user/remove-post', removePost);
 };
 
 module.exports = {
