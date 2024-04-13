@@ -4,10 +4,36 @@ import SellIcon from '../assets/icons/SellIcon';
 import { ActionIcon, Input, Avatar, Tooltip } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 
 export default function Navbar() {
   const navigate = useNavigate();
   const { user } = useAuth0();
+  const [profilePicUrl, setProfilePicUrl] = useState(null);
+
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      try {
+        const response = await axios.post(
+          `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/getUser`,
+          { email: user.email },
+        );
+        setProfilePicUrl(`${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/${response.data.profilePicture}`);
+      } catch (error) {
+        console.error("Failed to fetch user details:", error);
+      }
+    };
+
+    if (user) {
+      fetchUserDetails();
+    }
+  }, [user]);
+
+  const getUserInitials = (email) => {
+    return email ? email.substring(0, 2).toUpperCase() : "";
+  };
+
   return (
     <div className="flex p-2 bg-emerald-700 justify-between items-center">
       {/* Logo */}
@@ -15,7 +41,7 @@ export default function Navbar() {
         <img
           src={logo}
           style={{ width: 45, borderRadius: '10%' }}
-          alt={'CometMarketplace Logo'}
+          alt="CometMarketplace Logo"
           onClick={() => navigate('/')}
           className="hover:cursor-pointer"
           draggable="false"
@@ -53,9 +79,12 @@ export default function Navbar() {
           radius="xl"
           onClick={() => navigate('/profile')}
           className="hover:cursor-pointer mr-2"
-          src={user && user.picture}
-        />
+          src={profilePicUrl || undefined}
+        >
+          {!profilePicUrl && getUserInitials(user?.email)}
+        </Avatar>
       </Tooltip>
     </div>
   );
 }
+

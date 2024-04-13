@@ -85,21 +85,6 @@ const newPost = async (req, res) => {
   }
 };
 
-// const storage = multer.diskStorage({
-//   destination: (req, file, cb) => {
-//     const { userId, postId } = req.query;
-//     const dir = `uploads/${userId}/${postId}`;
-//     if (!fs.existsSync(dir)) {
-//       fs.mkdirSync(dir, { recursive: true });
-//     }
-//     cb(null, dir);
-//   },
-//   filename: (req, file, cb) => {
-//     // cb(null, file.originalname);
-//     cb(null, uuidv4() + path.extname(file.originalname));
-//   },
-// });
-
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     let dir;
@@ -108,7 +93,7 @@ const storage = multer.diskStorage({
     if (postId) {
       dir = `uploads/posts/${userId}/${postId}`;
     } else {
-      dir = `uploads/profiles/${userId}`;
+      dir = `uploads/profile_picture/${userId}`;
     }
     
     if (!fs.existsSync(dir)) {
@@ -121,11 +106,9 @@ const storage = multer.diskStorage({
     let filename;
 
     if (postId) {
-      // Generate a unique filename for post images
       filename = uuidv4() + path.extname(file.originalname);
     } else {
-      // Use a fixed filename for profile pictures to overwrite the old one
-      filename = `profile${path.extname(file.originalname)}`;
+      filename = uuidv4() + path.extname(file.originalname);
     }
     
     cb(null, filename);
