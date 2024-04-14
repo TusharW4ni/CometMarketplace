@@ -34,8 +34,8 @@ export default function Home() {
 
   return (
     <>
-      <Navbar className="" />
-      <div className="mt-16">
+      <Navbar />
+      <div className="mt-20">
         <div className="grid grid-cols-1 p-5 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {posts.length > 0 ? (
             posts.map((post) => (
@@ -85,6 +85,7 @@ export default function Home() {
           )}
         </div>
       </div>
+      {/* </div> */}
     </>
   );
 }
