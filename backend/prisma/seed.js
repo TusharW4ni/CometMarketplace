@@ -11,8 +11,13 @@ async function main() {
   const user1 = await prisma.user.create({
     data: {
       email: 'kxl220023@utdallas.edu',
-    }
-  })
+    },
+  });
+  const user2 = await prisma.user.create({
+    data: {
+      email: 'tmw220003@utdallas.edu',
+    },
+  });
 }
 
 main()
