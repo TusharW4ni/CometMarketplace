@@ -10,8 +10,6 @@ function ItemPage() {
     price: '',
     description: '',
     email: '',
-    imageUrl: '',
-    rating: ''
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -23,6 +21,10 @@ function ItemPage() {
       setIsLoading(true);
       try {
         const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_URL}/api/items/${id}`);
+        
+        // showing data
+        console.log('Actual response.data : ', response.data);
+        
         setItem(response.data);
         setIsLoading(false);
       } catch (error) {
@@ -59,11 +61,12 @@ function ItemPage() {
       <Navbar />
       <div className="container mx-auto mt-10">
         <div className="flex flex-col h-screen">
-          {item.imageUrl && (
+         /* {item.imageUrl && (
             <div style={{ maxHeight: '30%' }}>
               <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
             </div>
           )}
+         */
           <div className="mt-auto p-5 shadow-lg rounded-lg bg-white" style={{ marginBottom: '6rem' }}>
             <h3 className="text-xl leading-6 font-medium text-gray-900">Title: {item.title}</h3>
             <div className="mt-2">
@@ -80,7 +83,7 @@ function ItemPage() {
             </div>
             <div className="mt-2 mb-4">
               <div className="text-sm font-medium text-gray-500">Rating:</div>
-              <span className="text-sm text-gray-900">{item.rating}</span>
+              <span className="text-sm text-gray-900"></span>
             </div>
           </div>
         </div>

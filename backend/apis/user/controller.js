@@ -27,6 +27,41 @@ const getUser = async (req, res) => {
   }
 };
 
+//keejun just get post information through postID
+const getPostinfo = async (req, res) => {
+  const { postId } = req.params;
+  try {
+    const post = await prisma.post.findUnique({
+      where: { id: parseInt(postId) },
+      include: { 
+        user: { select: { email: true } } // Ensure the email is fetched
+      },
+    });
+
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    const dir = `uploads/${post.userId}/${postId}`;
+    post.photos = fs.existsSync(dir) 
+      ? fs.readdirSync(dir).map(file => path.join(dir, file)) 
+      : [];
+
+    // Simplify the response by removing the unnecessary nesting
+    const responsePost = {
+      title: post.title,
+      price: post.price,
+      description: post.desc,
+      email: post.user.email,
+    };
+
+    res.status(200).json(responsePost);
+  } catch (error) {
+    console.error('error in /api/user/get-post/:postId', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 const getUserById = async (req, res) => {
   const { id } = req.params;
   try {
@@ -81,6 +116,90 @@ const newPost = async (req, res) => {
   } catch (error) {
     console.log('error in /api/user/new-post', error);
     return res.status(500).json({ error: error.message });
+  }
+};
+
+//vincent WIP pray this works
+const editPost = async (req, res) => {
+  console.log('req to edit', req.body);
+  const{title, desc, price, userId, postId} = req.body;
+  
+  const user = await prisma.user.findUnique({
+    where: { id: parseInt(userId) },
+  });
+  if (!user)
+  {
+    return res.status(404).json({error: 'User ID not found'});
+  }
+
+  const post = await prisma.post.findUnique({
+    where: { id: parseInt(postId), user: parseInt(userId) },
+    
+  });
+  if(!post)
+  {
+    return res.status(404).json({error: 'Post ID not found'}); 
+  }
+
+  try
+  {
+    const updatedPost = await prisma.updatedPost.update({
+      where: {
+        id: parseInt(postId),
+        user: parseInt(userId),
+      },
+      data: {
+        title: title,
+        desc: desc,
+        price: parseInt(price),
+        userId: parseInt(userId),
+        postId: parseInt(postId),
+      },
+    });
+    return res.status(200).json({ message: 'post edited', postId: updatedPost.id });
+  } catch (error) {
+    console.log('error in /api/user/edit-post/:postId', error);
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+//vincent WIP probably doesnt work
+const removePost = async(req, res) => {
+  console.log('req to remove', req.body);
+  const{userId, postId} = req.body;
+  try {
+    const user = await prisma.user.findUnique({
+      where: { uid: parseInt(userId) },
+    });
+    if (!user)
+    {
+      return res.status(404).json({error: 'User ID not found'});
+    }
+
+    const post = await prisma.post.findUnique({
+      where: { pid: parseInt(postId) },
+    });
+    if(!post)
+    {
+      return res.status(404).json({error: 'Post ID not found'});  //404 not found
+    }
+
+    if (post.userId !== user.id)
+    {
+      return res.status(403).json({error: 'User does not have permission to remove post'});  //403 no permission to access
+    }
+
+    await prisma.post.delete({
+      where: {
+        uid: parseInt(userId),
+        pid: parseInt(postId),
+      },
+    });
+
+    return res.status(200).json({ message: 'post removed' }); //success status 200
+  } catch (error) {
+    console.log('error in /api/user/remove-post/:postId', error);
+    return res.status(500).json({ error: error.message });  //server error encounter
   }
 };
 
@@ -148,6 +267,36 @@ const getUserPosts = async (req, res) => {
   }
 };
 
+//vin
+const getUserPost = async (req, res) => {
+  const { postId } = req.params;
+  try {
+    const post = await prisma.post.findUnique({
+      where: { id: parseInt(postId) },
+      include: { user: true },
+    });
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    // Add photos to each post
+    for (let post of user.posts) {
+      const dir = post.photosFolder;
+      if (fs.existsSync(dir)) {
+        post.photos = fs.readdirSync(dir).map((file) => `${dir}/${file}`);
+      } else {
+        post.photos = [];
+      }
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.log('error in /api/user/get-post/:postId', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
 const getAllPosts = async (req, res) => {
   try {
     const posts = await prisma.post.findMany({
@@ -172,37 +321,6 @@ const getAllPosts = async (req, res) => {
   }
 };
 
-//Keejun
-const removePost = async (req, res) => {
-  console.log('Request to remove post: ', req.body); // Log the request
-  const { userId, postId } = req.body;   // Extract both from the request
-
-  try {
-    // Find user by ID
-    const user = await prisma.user.findUnique({ where: { id: parseInt(userId) } });
-    // Return 404 if user not found
-    if (!user) return res.status(404).json({ error: 'User not found' });
-
-    // Find post by ID
-    const post = await prisma.post.findUnique({ where: { id: parseInt(postId) } });
-    // Return 404 if post not found
-    if (!post) return res.status(404).json({ error: 'Post not found' });
-
-    // Check if user owns the post
-    if (post.userId !== user.id) return res.status(403).json({ error: 'User cannot remove this post' });
-
-    // Delete the post
-    await prisma.post.delete({ where: { id: parseInt(postId) } });
-
-    // Success response
-    res.status(200).json({ message: 'Post removed' });
-  } catch (error) {
-    // Error handling
-    console.error('Error in /api/user/remove-post:', error);
-    res.status(500).json({ error: error.message });
-  }
-};
-
 const addRoutes = (router) => {
   router.post('/api/getUser', getUser);
   router.get('/api/getUserById/:id', getUserById);
@@ -215,8 +333,15 @@ const addRoutes = (router) => {
   );
   router.get('/api/user/get-posts/:userId', getUserPosts);
   router.get('/api/getAllPosts', getAllPosts);
-  //delete post route
-  router.delete('/api/user/remove-post', removePost);
+  router.get('/api/user/get-post/:postId/:userId', getUserPost);
+
+  //vin
+  router.post('/api/user/edit-post/:postId', editPost); //maybe add userId?
+  router.post('/api/user/remove-post/:postId', removePost); //here too
+  
+
+  //keejun
+  router.get('/api/items/:postId', getPostinfo);
 };
 
 module.exports = {
