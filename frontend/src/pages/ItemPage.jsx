@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
+import { Carousel } from '@mantine/carousel';
+import { Image } from '@mantine/core';
 
 function ItemPage() {
   const [item, setItem] = useState({
@@ -19,8 +21,11 @@ function ItemPage() {
   useEffect(() => {
     const fetchItemDetails = async () => {
       setIsLoading(true);
+      console.log(id);
       try {
-        const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_URL}/api/items/${id}`);
+        
+      console.log(`${import.meta.env.VITE_APP_BACKEND_URL}/api/item/${id}`);
+        const response = await axios.get(`${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/item/${id}`);
         
         // showing data
         console.log('Actual response.data : ', response.data);
@@ -61,12 +66,18 @@ function ItemPage() {
       <Navbar />
       <div className="container mx-auto mt-10">
         <div className="flex flex-col h-screen">
-         /* {item.imageUrl && (
-            <div style={{ maxHeight: '30%' }}>
-              <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
-            </div>
-          )}
-         */
+        <Carousel withIndicators loop>
+                  {item.photo.map((pho) => (
+                    <Carousel.Slide key={pho}>
+                      <Image
+                        src={`${
+                          import.meta.env.VITE_APP_EXPRESS_BASE_URL
+                        }/${pho}`}
+                        alt={item.title}
+                      />
+                    </Carousel.Slide>
+                  ))}
+        </Carousel>
           <div className="mt-auto p-5 shadow-lg rounded-lg bg-white" style={{ marginBottom: '6rem' }}>
             <h3 className="text-xl leading-6 font-medium text-gray-900">Title: {item.title}</h3>
             <div className="mt-2">

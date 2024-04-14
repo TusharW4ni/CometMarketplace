@@ -30,32 +30,38 @@ const getUser = async (req, res) => {
 //keejun just get post information through postID
 const getPostinfo = async (req, res) => {
   const { postId } = req.params;
+  console.log(postId);
   try {
-    const post = await prisma.post.findUnique({
+    const postt = await prisma.post.findUnique({
       where: { id: parseInt(postId) },
       include: { 
         user: { select: { email: true } } // Ensure the email is fetched
       },
     });
 
-    if (!post) {
+    if (!postt) {
       return res.status(404).json({ error: 'Post not found' });
     }
 
-    const dir = `uploads/${post.userId}/${postId}`;
-    post.photos = fs.existsSync(dir) 
-      ? fs.readdirSync(dir).map(file => path.join(dir, file)) 
-      : [];
+    const dirr = postt.photosFolder;
+    if (fs.existsSync(dirr)) {
+      postt.photo = fs.readdirSync(dirr).map((file) => `${dirr}/${file}`);
+    } else {
+      postt.photo = [];
+    }
 
     // Simplify the response by removing the unnecessary nesting
     const responsePost = {
-      title: post.title,
-      price: post.price,
-      description: post.desc,
-      email: post.user.email,
+      title: postt.title,
+      price: postt.price,
+      description: postt.desc,
+      email: postt.user.email,
+      photo: postt.photo,
     };
 
     res.status(200).json(responsePost);
+    console.log(responsePost);
+
   } catch (error) {
     console.error('error in /api/user/get-post/:postId', error);
     res.status(500).json({ error: error.message });
@@ -267,6 +273,7 @@ const getUserPosts = async (req, res) => {
   }
 };
 
+
 //vin
 const getUserPost = async (req, res) => {
   const { postId } = req.params;
@@ -288,6 +295,7 @@ const getUserPost = async (req, res) => {
         post.photos = [];
       }
     }
+  
 
     res.status(200).json(user);
   } catch (error) {
@@ -333,7 +341,7 @@ const addRoutes = (router) => {
   );
   router.get('/api/user/get-posts/:userId', getUserPosts);
   router.get('/api/getAllPosts', getAllPosts);
-  router.get('/api/user/get-post/:postId/:userId', getUserPost);
+  //router.get('/api/user/get-post/:postId/:userId', getUserPost);
 
   //vin
   router.post('/api/user/edit-post/:postId', editPost); //maybe add userId?
@@ -341,7 +349,7 @@ const addRoutes = (router) => {
   
 
   //keejun
-  router.get('/api/items/:postId', getPostinfo);
+  router.get('/api/item/:postId', getPostinfo);
 };
 
 module.exports = {
