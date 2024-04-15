@@ -364,6 +364,7 @@ const addRoutes = (router) => {
   );
   router.get('/api/user/get-posts/:userId', getUserPosts);
   router.get('/api/getAllPosts', getAllPosts);
+<<<<<<< HEAD
   //router.get('/api/user/get-post/:postId/:userId', getUserPost);
 
   //vin
@@ -374,6 +375,22 @@ const addRoutes = (router) => {
   router.get('/api/item/:postId', getPostinfo);
 
   router.post('/api/create-report', createReport);
+=======
+  router.get('/api/getPostNameFromId/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+      const post = await prisma.post.findUnique({
+        where: {
+          id: parseInt(id),
+        },
+      });
+      res.status(200).json(post);
+    } catch (error) {
+      console.log('error in /api/getPostNameFromId/:id', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+>>>>>>> 37d3a725054ca1df1ab8633a311cd91e05b9615b
 };
 
 module.exports = {

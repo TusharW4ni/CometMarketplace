@@ -9,8 +9,12 @@ import Login from './pages/Login';
 import LoginRedirect from './pages/LoginRedirect';
 import ItemPage from './pages/ItemPage';
 import Report from './pages/Report';
+<<<<<<< HEAD
 
 import { io } from 'socket.io-client';
+=======
+import Help from './pages/Help';
+>>>>>>> 37d3a725054ca1df1ab8633a311cd91e05b9615b
 
 export default function App() {
   const { isAuthenticated } = useAuth0();
@@ -35,6 +39,10 @@ export default function App() {
           <Route path="/messages" element={<Messages socket={socket} />} />
           <Route path="/item/:id" element={<ItemPage />} />
           <Route path="/report" element={<Report />} />
+<<<<<<< HEAD
+=======
+          <Route path="/help" element={<Help />} />
+>>>>>>> 37d3a725054ca1df1ab8633a311cd91e05b9615b
         </Routes>
       </BrowserRouter>
     );
