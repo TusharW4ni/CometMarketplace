@@ -16,6 +16,7 @@ export default function MakePost() {
     price: 0,
     desc: '',
   });
+  const [formError, setFormError] = useState(false);
   const [isPosted, setIsPosted] = useState(false);
 
   useEffect(() => {
@@ -77,26 +78,33 @@ export default function MakePost() {
       formDataObj.append('files', file);
     });
     try {
-      await axios.post(
-        `${
-          import.meta.env.VITE_APP_EXPRESS_BASE_URL
-        }/api/user/add-images-to-new-post`,
-        formDataObj,
-        {
-          params: {
-            userId: currUser.id,
-            postId: newPostId,
+      if (
+        !(formData.desc === '' || formData.title === '' || formData.price === 0)
+      ) {
+        setFormError(false);
+        await axios.post(
+          `${
+            import.meta.env.VITE_APP_EXPRESS_BASE_URL
+          }/api/user/add-images-to-new-post`,
+          formDataObj,
+          {
+            params: {
+              userId: currUser.id,
+              postId: newPostId,
+            },
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
           },
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        },
-      );
-      setIsPosted(true);
-      setTimeout(() => {
-        setIsPosted(false);
-        window.location.reload();
-      }, 2000);
+        );
+        setIsPosted(true);
+        setTimeout(() => {
+          setIsPosted(false);
+          window.location.reload();
+        }, 2000);
+      } else {
+        setFormError(true);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -106,7 +114,7 @@ export default function MakePost() {
     <>
       <Navbar />
       {isPosted && (
-        <div className="text-center py-4 lg:px-4">
+        <div className="mt-16 text-center py-4 lg:px-4">
           <div
             className="p-2 bg-orange-500 items-center text-black leading-none lg:rounded-full flex lg:inline-flex"
             role="alert"
@@ -118,9 +126,24 @@ export default function MakePost() {
               Your post has been created
             </span>
           </div>
-        </div>,
+        </div>
       )}
-      <div className="flex flex-col items-center">
+      {formError && (
+        <div className="mt-16 text-center py-4 lg:px-4">
+          <div
+            className="p-2 bg-red-500 items-center text-black leading-none lg:rounded-full flex lg:inline-flex"
+            role="alert"
+          >
+            <span className="flex rounded-full bg-red-200 uppercase px-2 py-1 text-xs font-bold mr-3">
+              Error
+            </span>
+            <span className="font-semibold mr-2 text-left flex-auto">
+              Please fill out all fields
+            </span>
+          </div>
+        </div>
+      )}
+      <div className="mt-16 flex flex-col items-center">
         <div className="space-y-5">
           <h1 className="text-2xl font-bold text-white mt-5">Item for Sale</h1>
           <div className="flex space-x-40">
