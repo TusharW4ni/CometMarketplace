@@ -56,7 +56,7 @@ export default function Navbar() {
           color="orange"
           onClick={() => navigate('/cart')}
         >
-          <MessagesIcon />
+          <ShoppingCartIcon />
         </ActionIcon>
       </Tooltip>
       {/* Profile Button */}
