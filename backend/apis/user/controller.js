@@ -172,6 +172,51 @@ const getAllPosts = async (req, res) => {
   }
 };
 
+const addRating = async(request,response) =>{
+  const {comment, stars, userId} = request.body; 
+  try {
+    const newRating = await prisma.rating.create({
+      data:{
+        comment: comment, 
+        stars: parseInt(stars)
+      }
+
+    })
+    const newMapping = await prisma.userRatingMapping.create({
+      data:{
+        userId: parseInt(userId), 
+        ratingId: parseInt(newRating.id)
+      }
+    })
+    response.status(200).json({message: "rating added"})
+  } catch (error) {
+    console.log("error - add rating", error)
+    response.status(500).json({message: `error - add rating`})
+  }
+
+}
+
+const getRatingsForUser = async(request,response) =>{
+  const {userId} = request.body; 
+  try {
+    const ratings = await prisma.userRatingMapping.findMany({
+      where:{
+        userId: parseInt(userId)
+      }, 
+      include:{
+        rating: true
+      }
+    })
+    response.status(200).json(ratings)
+  } catch (error) {
+    console.log("error - get rating", error)
+    response.status(500).json({message: `error - get rating}`})
+    
+  }
+
+
+}
+
 const addRoutes = (router) => {
   router.post('/api/getUser', getUser);
   router.get('/api/getUserById/:id', getUserById);
@@ -184,7 +229,11 @@ const addRoutes = (router) => {
   );
   router.get('/api/user/get-posts/:userId', getUserPosts);
   router.get('/api/getAllPosts', getAllPosts);
+  router.post('/api/addRating',addRating);
+  router.get('/api/getRatingsForUser', getRatingsForUser); 
 };
+
+
 
 module.exports = {
   addRoutes,
