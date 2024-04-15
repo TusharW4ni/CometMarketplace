@@ -101,7 +101,7 @@ export default function Profile() {
   return (
     <div>
       <Navbar />
-      <div className="flex bg-green-800 justify-end p-3">
+      <div className="flex bg-green-800 mt-14 justify-end p-3">
         <Button color="red" onClick={() => logout()}>Logout</Button>
       </div>
       <div className="container mx-auto mt-5">

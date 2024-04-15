@@ -8,7 +8,7 @@ import { MantineProvider } from '@mantine/core';
 import { Auth0Provider } from '@auth0/auth0-react';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
+  // <React.StrictMode>
     <MantineProvider>
       <Auth0Provider
         domain="dev-8ey6pfp5cskacl7c.us.auth0.com"
@@ -21,5 +21,5 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <App />
       </Auth0Provider>
     </MantineProvider>
-  </React.StrictMode>,
+  // </React.StrictMode>,
 );

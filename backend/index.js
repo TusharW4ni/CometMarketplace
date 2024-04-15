@@ -1,4 +1,20 @@
 const express = require('express');
+const io = require('socket.io')(5002, {
+  cors: {
+    // origin: [`${process.env.VITE_BASE_URL}`],
+    // origin: 'http://localhost:5173/messages',
+    origin: ['http://localhost:5173'],
+    // methods: ["GET", "POST"]
+  },
+});
+io.on("connection", (socket) => {
+  console.log("a user connected", socket.id);
+  socket.on("chat message", (msg) => {
+    console.log("message " + msg);
+    io.emit("chat message", msg); // send to all clients
+  });
+})
+
 const app = express();
 
 const cors = require('cors');
@@ -25,4 +41,4 @@ app.use((req, res, next) => {
   next();
 });
 
-app.listen(5001, () => console.log('listening on port 5001....'));
+app.listen(5010, () => console.log('listening on port 5010....'));
