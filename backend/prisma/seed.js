@@ -18,6 +18,12 @@ async function main() {
       email: 'tmw220003@utdallas.edu',
     },
   });
+  const user3 = await prisma.user.create({
+    data: {
+      email: 'sph210004@utdallas.edu',
+    },
+  });
+
 }
 
 main()

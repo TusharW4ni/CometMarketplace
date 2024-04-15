@@ -5,6 +5,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { Carousel } from '@mantine/carousel';
 import { Image } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
+import PublicProfile from './PublicProfile';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -62,6 +63,7 @@ export default function Home() {
                       onClick={() => {
                         navigate(`/item/${post.id}`);
                       }}
+                    
                     >
                       {post.title}
                     </div>
@@ -72,7 +74,9 @@ export default function Home() {
                   <p className="text-gray-700 text-base flex justify-center mt-2 bg-orange-300 p-2 rounded-lg">
                     {post.desc}
                   </p>
-                  <p className="text-gray-700 text-base flex justify-center mt-2 underline hover:text-gray-900 hover:cursor-pointer bg-orange-300 p-1 rounded-lg">
+                  <p className="text-gray-700 text-base flex justify-center mt-2 underline hover:text-gray-900 hover:cursor-pointer bg-orange-300 p-1 rounded-lg hover:cursor-pointer"
+                    onClick={()=> {navigate(`/public-profile/${post.user.id}`)}}
+                  >
                     {post.user.email}
                   </p>
                 </div>
