@@ -17,12 +17,54 @@ const getUser = async (req, res) => {
         posts: true,
       },
     });
+    console.log("User Info: ", user);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
     res.status(200).json(user);
   } catch (error) {
     console.log('error in /api/getUser', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+//keejun just get post information through postID
+const getPostinfo = async (req, res) => {
+  const { postId } = req.params;
+  console.log(postId);
+  try {
+    const postt = await prisma.post.findUnique({
+      where: { id: parseInt(postId) },
+      include: { 
+        user: { select: { email: true } } // Ensure the email is fetched
+      },
+    });
+
+    if (!postt) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    const dirr = postt.photosFolder;
+    if (fs.existsSync(dirr)) {
+      postt.photo = fs.readdirSync(dirr).map((file) => `${dirr}/${file}`);
+    } else {
+      postt.photo = [];
+    }
+
+    // Simplify the response by removing the unnecessary nesting
+    const responsePost = {
+      title: postt.title,
+      price: postt.price,
+      description: postt.desc,
+      email: postt.user.email,
+      photo: postt.photo,
+    };
+
+    res.status(200).json(responsePost);
+    console.log(responsePost);
+
+  } catch (error) {
+    console.error('error in /api/user/get-post/:postId', error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -178,18 +220,34 @@ const removePost = async(req, res) => {
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
+    let dir;
     const { userId, postId } = req.query;
-    const dir = `uploads/${userId}/${postId}`;
+    
+    if (postId) {
+      dir = `uploads/posts/${userId}/${postId}`;
+    } else {
+      dir = `uploads/profile_picture/${userId}`;
+    }
+    
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
     cb(null, dir);
   },
   filename: (req, file, cb) => {
-    // cb(null, file.originalname);
-    cb(null, uuidv4() + path.extname(file.originalname));
+    const { postId } = req.query;
+    let filename;
+
+    if (postId) {
+      filename = uuidv4() + path.extname(file.originalname);
+    } else {
+      filename = uuidv4() + path.extname(file.originalname);
+    }
+    
+    cb(null, filename);
   },
 });
+
 
 const upload = multer({ storage: storage });
 
@@ -213,6 +271,7 @@ const handleUpload = async (req, res) => {
 };
 
 const getUserPosts = async (req, res) => {
+  console.log(req.params);
   const { userId } = req.params;
   try {
     const user = await prisma.user.findUnique({
@@ -294,7 +353,62 @@ const getAllPosts = async (req, res) => {
   }
 };
 
+const updateUserProfile = async (req, res) => {
+  const { id } = req.params;
+  console.log('this is req.body', req.body);
+  const { displayName, username, pronouns, bio} = req.body;
+
+  console.log("displayName: ", displayName);
+  try {
+    const update = await prisma.user.update({
+      where: {
+        id: parseInt(id),
+      },
+      data: {
+        name: displayName,
+        username: username,
+        pronouns: pronouns,
+        bio: bio,
+      },
+    });
+    console.log(update);
+    res.status(200).json(update);
+  } catch (error) {
+    console.log('error in /api/user/update-profile/:id', error);
+    
+    if (error.code == 'P2002'){
+      res.status(409).json({ error: error });
+    }else{
+      res.status(500).json({ error: error });
+    }
+  }
+};
+
+const handleProfilePictureUpload = async (req, res) => {
+  const { userId } = req.params;
+  if (!req.file) {
+    return res.status(400).send('No file uploaded.');
+  }
+
+  const profilePicturePath = req.file.path;
+
+  try {
+    await prisma.user.update({
+      where: { id: parseInt(userId) },
+      data: { profilePicture: profilePicturePath },
+    });
+
+    res.send({ message: 'Profile picture updated successfully!' });
+  } catch (error) {
+    console.error('Failed to upload profile picture:', error);
+    res.status(500).send({ error: 'Failed to update profile picture.' });
+  }
+};
+
+
+
 const addRoutes = (router) => {
+  router.post('/api/user/update-profile/:id', updateUserProfile);
   router.post('/api/getUser', getUser);
   router.get('/api/getUserById/:id', getUserById);
   router.post('/api/newUser', newUser);
@@ -304,6 +418,10 @@ const addRoutes = (router) => {
     upload.array('files'),
     handleUpload,
   );
+  router.post(
+    '/api/user/upload-profile-picture/:userId',
+    upload.single('profilePicture'),
+    handleProfilePictureUpload);
   router.get('/api/user/get-posts/:userId', getUserPosts);
   router.get('/api/getAllPosts', getAllPosts);
   //vin

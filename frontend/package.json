@@ -14,14 +14,16 @@
     "@mantine/carousel": "^7.7.1",
     "@mantine/core": "^7.6.2",
     "@mantine/hooks": "^7.6.2",
+    "@tabler/icons-react": "^3.1.0",
     "axios": "^1.6.8",
     "embla-carousel-react": "^7.1.0",
-    "firebase": "^10.9.0",
+    "firebase": "^10.6.0",
     "form-data": "^4.0.0",
     "js-cookie": "^3.0.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.22.3"
+    "react-router-dom": "^6.22.3",
+    "socket.io-client": "^4.7.5"
   },
   "devDependencies": {
     "@types/react": "^18.2.64",
