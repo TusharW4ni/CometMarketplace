@@ -7,7 +7,6 @@ const prisma = new PrismaClient();
 
 const getUser = async (req, res) => {
   const { email } = req.body;
-  console.log("this is user's email", email);
   try {
     const user = await prisma.user.findUnique({
       where: {
@@ -164,7 +163,7 @@ const getAllPosts = async (req, res) => {
         post.photos = [];
       }
     }
-    
+
     res.status(200).json(posts);
   } catch (error) {
     console.log('error in /api/getAllPosts', error);
