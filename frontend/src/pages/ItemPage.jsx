@@ -23,13 +23,14 @@ function ItemPage() {
       setIsLoading(true);
       console.log(id);
       try {
-        
-      console.log(`${import.meta.env.VITE_APP_BACKEND_URL}/api/item/${id}`);
-        const response = await axios.get(`${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/item/${id}`);
-        
+        console.log(`${import.meta.env.VITE_APP_BACKEND_URL}/api/item/${id}`);
+        const response = await axios.get(
+          `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/item/${id}`,
+        );
+
         // showing data
         console.log('Actual response.data : ', response.data);
-        
+
         setItem(response.data);
         setIsLoading(false);
       } catch (error) {
@@ -54,7 +55,10 @@ function ItemPage() {
     return (
       <div className="text-center">
         <p className="text-red-600">{error}</p>
-        <button onClick={() => window.location.reload()} className="mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+        <button
+          onClick={() => window.location.reload()}
+          className="mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
           Retry
         </button>
       </div>
@@ -66,20 +70,23 @@ function ItemPage() {
       <Navbar />
       <div className="container mx-auto mt-10">
         <div className="flex flex-col h-screen">
-        <Carousel withIndicators loop>
-                  {item.photo.map((pho) => (
-                    <Carousel.Slide key={pho}>
-                      <Image
-                        src={`${
-                          import.meta.env.VITE_APP_EXPRESS_BASE_URL
-                        }/${pho}`}
-                        alt={item.title}
-                      />
-                    </Carousel.Slide>
-                  ))}
-        </Carousel>
-          <div className="mt-auto p-5 shadow-lg rounded-lg bg-white" style={{ marginBottom: '6rem' }}>
-            <h3 className="text-xl leading-6 font-medium text-gray-900">Title: {item.title}</h3>
+          <Carousel withIndicators loop>
+            {item.photo.map((pho) => (
+              <Carousel.Slide key={pho}>
+                <Image
+                  src={`${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/${pho}`}
+                  alt={item.title}
+                />
+              </Carousel.Slide>
+            ))}
+          </Carousel>
+          <div
+            className="mt-auto p-5 shadow-lg rounded-lg bg-white"
+            style={{ marginBottom: '6rem' }}
+          >
+            <h3 className="text-xl leading-6 font-medium text-gray-900">
+              Title: {item.title}
+            </h3>
             <div className="mt-2">
               <div className="text-sm font-medium text-gray-500">Price:</div>
               <span className="text-sm text-gray-900">{item.price}</span>
@@ -89,7 +96,9 @@ function ItemPage() {
               <span className="text-sm text-gray-900">{item.email}</span>
             </div>
             <div className="mt-2">
-              <div className="text-sm font-medium text-gray-500">Description:</div>
+              <div className="text-sm font-medium text-gray-500">
+                Description:
+              </div>
               <p className="mt-1 text-sm text-gray-700">{item.description}</p>
             </div>
             <div className="mt-2 mb-4">

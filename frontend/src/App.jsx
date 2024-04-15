@@ -8,6 +8,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 import Login from './pages/Login';
 import LoginRedirect from './pages/LoginRedirect';
 import ItemPage from './pages/ItemPage';
+import Report from './pages/Report';
 
 import { io } from 'socket.io-client';
 
@@ -31,8 +32,9 @@ export default function App() {
           <Route path="/login-redirect" element={<LoginRedirect />} />
           <Route path="/make-post" element={<MakePost />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/messages" element={<Messages socket={socket}/>} />
+          <Route path="/messages" element={<Messages socket={socket} />} />
           <Route path="/item/:id" element={<ItemPage />} />
+          <Route path="/report" element={<Report />} />
         </Routes>
       </BrowserRouter>
     );

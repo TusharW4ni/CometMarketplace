@@ -34,8 +34,8 @@ const getPostinfo = async (req, res) => {
   try {
     const postt = await prisma.post.findUnique({
       where: { id: parseInt(postId) },
-      include: { 
-        user: { select: { email: true } } // Ensure the email is fetched
+      include: {
+        user: { select: { email: true } }, // Ensure the email is fetched
       },
     });
 
@@ -61,7 +61,6 @@ const getPostinfo = async (req, res) => {
 
     res.status(200).json(responsePost);
     console.log(responsePost);
-
   } catch (error) {
     console.error('error in /api/user/get-post/:postId', error);
     res.status(500).json({ error: error.message });
@@ -109,6 +108,9 @@ const newPost = async (req, res) => {
   if (!user) {
     return res.status(404).json({ error: 'User not found' });
   }
+  if (!userId || isNaN(userId)) {
+    return res.status(400).json({ error: 'Invalid user ID' });
+  }
   try {
     const post = await prisma.post.create({
       data: {
@@ -128,27 +130,23 @@ const newPost = async (req, res) => {
 //vincent WIP pray this works
 const editPost = async (req, res) => {
   console.log('req to edit', req.body);
-  const{title, desc, price, userId, postId} = req.body;
-  
+  const { title, desc, price, userId, postId } = req.body;
+
   const user = await prisma.user.findUnique({
     where: { id: parseInt(userId) },
   });
-  if (!user)
-  {
-    return res.status(404).json({error: 'User ID not found'});
+  if (!user) {
+    return res.status(404).json({ error: 'User ID not found' });
   }
 
   const post = await prisma.post.findUnique({
     where: { id: parseInt(postId), user: parseInt(userId) },
-    
   });
-  if(!post)
-  {
-    return res.status(404).json({error: 'Post ID not found'}); 
+  if (!post) {
+    return res.status(404).json({ error: 'Post ID not found' });
   }
 
-  try
-  {
+  try {
     const updatedPost = await prisma.updatedPost.update({
       where: {
         id: parseInt(postId),
@@ -162,7 +160,9 @@ const editPost = async (req, res) => {
         postId: parseInt(postId),
       },
     });
-    return res.status(200).json({ message: 'post edited', postId: updatedPost.id });
+    return res
+      .status(200)
+      .json({ message: 'post edited', postId: updatedPost.id });
   } catch (error) {
     console.log('error in /api/user/edit-post/:postId', error);
     return res.status(500).json({ error: error.message });
@@ -170,29 +170,28 @@ const editPost = async (req, res) => {
 };
 
 //vincent WIP probably doesnt work
-const removePost = async(req, res) => {
+const removePost = async (req, res) => {
   console.log('req to remove', req.body);
-  const{userId, postId} = req.body;
+  const { userId, postId } = req.body;
   try {
     const user = await prisma.user.findUnique({
       where: { uid: parseInt(userId) },
     });
-    if (!user)
-    {
-      return res.status(404).json({error: 'User ID not found'});
+    if (!user) {
+      return res.status(404).json({ error: 'User ID not found' });
     }
 
     const post = await prisma.post.findUnique({
       where: { pid: parseInt(postId) },
     });
-    if(!post)
-    {
-      return res.status(404).json({error: 'Post ID not found'});  //404 not found
+    if (!post) {
+      return res.status(404).json({ error: 'Post ID not found' }); //404 not found
     }
 
-    if (post.userId !== user.id)
-    {
-      return res.status(403).json({error: 'User does not have permission to remove post'});  //403 no permission to access
+    if (post.userId !== user.id) {
+      return res
+        .status(403)
+        .json({ error: 'User does not have permission to remove post' }); //403 no permission to access
     }
 
     await prisma.post.delete({
@@ -205,7 +204,7 @@ const removePost = async(req, res) => {
     return res.status(200).json({ message: 'post removed' }); //success status 200
   } catch (error) {
     console.log('error in /api/user/remove-post/:postId', error);
-    return res.status(500).json({ error: error.message });  //server error encounter
+    return res.status(500).json({ error: error.message }); //server error encounter
   }
 };
 
@@ -273,7 +272,6 @@ const getUserPosts = async (req, res) => {
   }
 };
 
-
 //vin
 const getUserPost = async (req, res) => {
   const { postId } = req.params;
@@ -295,7 +293,6 @@ const getUserPost = async (req, res) => {
         post.photos = [];
       }
     }
-  
 
     res.status(200).json(user);
   } catch (error) {
@@ -303,7 +300,6 @@ const getUserPost = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 
 const getAllPosts = async (req, res) => {
   try {
@@ -321,10 +317,37 @@ const getAllPosts = async (req, res) => {
         post.photos = [];
       }
     }
-    
+
     res.status(200).json(posts);
   } catch (error) {
     console.log('error in /api/getAllPosts', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const createReport = async (req, res) => {
+  const { userReportingId, url, reportType, reportDescription } = req.body;
+  const user = await prisma.user.findUnique({
+    where: { id: parseInt(userReportingId) },
+  });
+
+  if (userReportingId === 0) {
+  } else if (!user) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+
+  try {
+    const report = await prisma.report.create({
+      data: {
+        userReportingId: parseInt(userReportingId),
+        url: url,
+        reportType: reportType,
+        reportDescription: reportDescription,
+      },
+    });
+    res.status(200).json(report);
+  } catch (error) {
+    console.log('error in /api/user/create-report', error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -346,10 +369,11 @@ const addRoutes = (router) => {
   //vin
   router.post('/api/user/edit-post/:postId', editPost); //maybe add userId?
   router.post('/api/user/remove-post/:postId', removePost); //here too
-  
 
   //keejun
   router.get('/api/item/:postId', getPostinfo);
+
+  router.post('/api/create-report', createReport);
 };
 
 module.exports = {
