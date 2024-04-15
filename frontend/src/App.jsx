@@ -6,7 +6,10 @@ import Messages from './pages/Messages';
 import { useAuth0 } from '@auth0/auth0-react';
 import Login from './pages/Login';
 import LoginRedirect from './pages/LoginRedirect';
-import EditItem from './pages/EditItem';
+import EditPost from './pages/EditPost';
+import MyPosts from './pages/MyPosts';
+
+
 
 export default function App() {
   const { isAuthenticated } = useAuth0();
@@ -20,7 +23,9 @@ export default function App() {
           <Route path="/make-post" element={<MakePost />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/messages" element={<Messages />} />
-          <Route path="/edit-item" element={<EditItem />} />
+          <Route path="/my-posts" element={<MyPosts />} />
+          <Route path="/edit-post/:postID" element={<EditPost />} />
+
         </Routes>
       </BrowserRouter>
     );
