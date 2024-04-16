@@ -174,21 +174,26 @@ const getAllPosts = async (req, res) => {
 //Keejun
 const removePost = async (req, res) => {
   console.log('Request to remove post: ', req.body); // Log the request
-  const { userId, postId } = req.body;   // Extract both from the request
+  const { userId, postId } = req.body; // Extract both from the request
 
   try {
     // Find user by ID
-    const user = await prisma.user.findUnique({ where: { id: parseInt(userId) } });
+    const user = await prisma.user.findUnique({
+      where: { id: parseInt(userId) },
+    });
     // Return 404 if user not found
     if (!user) return res.status(404).json({ error: 'User not found' });
 
     // Find post by ID
-    const post = await prisma.post.findUnique({ where: { id: parseInt(postId) } });
+    const post = await prisma.post.findUnique({
+      where: { id: parseInt(postId) },
+    });
     // Return 404 if post not found
     if (!post) return res.status(404).json({ error: 'Post not found' });
 
     // Check if user owns the post
-    if (post.userId !== user.id) return res.status(403).json({ error: 'User cannot remove this post' });
+    if (post.userId !== user.id)
+      return res.status(403).json({ error: 'User cannot remove this post' });
 
     // Delete the post
     await prisma.post.delete({ where: { id: parseInt(postId) } });
@@ -199,6 +204,24 @@ const removePost = async (req, res) => {
     // Error handling
     console.error('Error in /api/user/remove-post:', error);
     res.status(500).json({ error: error.message });
+  }
+};
+
+const updateSocketId = async (req, res) => {
+  const { socketId, userId } = req.body;
+  try {
+    const update = await prisma.user.update({
+      where: {
+        id: parseInt(userId),
+      },
+      data: {
+        socketId: socketId,
+      },
+    });
+    res.status(200).json({ message: 'updated successfully' });
+  } catch (error) {
+    console.log('errored in updateSocketId', error);
+    res.status(500);
   }
 };
 
@@ -216,6 +239,7 @@ const addRoutes = (router) => {
   router.get('/api/getAllPosts', getAllPosts);
   //delete post route
   router.delete('/api/user/remove-post', removePost);
+  router.patch('/api/updateSocketId', updateSocketId);
 };
 
 module.exports = {

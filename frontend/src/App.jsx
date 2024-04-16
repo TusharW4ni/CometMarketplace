@@ -8,13 +8,27 @@ import { useAuth0 } from '@auth0/auth0-react';
 import Login from './pages/Login';
 import LoginRedirect from './pages/LoginRedirect';
 import ItemPage from './pages/ItemPage';
-
 import { io } from 'socket.io-client';
+import axios from 'axios';
 
 export default function App() {
-  const { isAuthenticated } = useAuth0();
+  const { isAuthenticated, user } = useAuth0();
   const [socket, setSocket] = useState(null);
+  const [localUser, setLocalUser] = useState(null);
   useEffect(() => {
+    const getUser = async () => {
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/getUser`,
+          { email: user.email },
+        );
+        setLocalUser(res);
+        console.log('app.jsx res.data', res.data);
+      } catch (error) {
+        console.log('getUser (App.jsx) errored out', error);
+      }
+    };
+    getUser();
     console.log('Creating socket connection...');
     const socket = io(`${import.meta.env.VITE_APP_SOCKET_BASE_URL}`);
     setSocket(socket);
@@ -31,7 +45,7 @@ export default function App() {
           <Route path="/login-redirect" element={<LoginRedirect />} />
           <Route path="/make-post" element={<MakePost />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/messages" element={<Messages socket={socket}/>} />
+          <Route path="/messages" element={<Messages socket={socket} />} />
           <Route path="/item/:id" element={<ItemPage />} />
         </Routes>
       </BrowserRouter>
