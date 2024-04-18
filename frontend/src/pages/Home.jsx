@@ -5,13 +5,13 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { Carousel } from '@mantine/carousel';
 import { Image } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
+import PublicProfile from './PublicProfile';
 
 export default function Home() {
   const navigate = useNavigate();
   const { user } = useAuth0();
   const [posts, setPosts] = useState([]);
   const [currUser, setCurrUser] = useState({});
-
   useEffect(() => {
     const getUserAndPosts = async () => {
       try {
@@ -19,7 +19,6 @@ export default function Home() {
           `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/getUser`,
           { email: user.email },
         );
-        
         setCurrUser(userRes.data);
         const postsRes = await axios.get(
           `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/getAllPosts`,
@@ -32,11 +31,10 @@ export default function Home() {
     };
     getUserAndPosts();
   }, []);
-
   return (
     <>
-      <Navbar className="" />
-      <div className="mt-16">
+      <Navbar />
+      <div className="mt-20">
         <div className="grid grid-cols-1 p-5 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {posts.length > 0 ? (
             posts.map((post) => (
@@ -63,6 +61,7 @@ export default function Home() {
                       onClick={() => {
                         navigate(`/item/${post.id}`);
                       }}
+
                     >
                       {post.title}
                     </div>
@@ -73,7 +72,9 @@ export default function Home() {
                   <p className="text-gray-700 text-base flex justify-center mt-2 bg-orange-300 p-2 rounded-lg">
                     {post.desc}
                   </p>
-                  <p className="text-gray-700 text-base flex justify-center mt-2 underline hover:text-gray-900 hover:cursor-pointer bg-orange-300 p-1 rounded-lg">
+                  <p className="text-gray-700 text-base flex justify-center mt-2 underline hover:text-gray-900 hover:cursor-pointer bg-orange-300 p-1 rounded-lg hover:cursor-pointer"
+                    onClick={()=> {navigate(`/public-profile/${post.user.id}`)}}
+                  >
                     {post.user.email}
                   </p>
                 </div>
@@ -86,6 +87,7 @@ export default function Home() {
           )}
         </div>
       </div>
+      {/* </div> */}
     </>
   );
 }
