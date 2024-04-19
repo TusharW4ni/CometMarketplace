@@ -5,6 +5,7 @@ import { Button, TextInput, Avatar } from '@mantine/core';
 import { Carousel } from '@mantine/carousel';
 import Navbar from '../components/Navbar';
 import { useNavigate } from 'react-router-dom';
+import { useAuth0 } from '@auth0/auth0-react';
 
 const StarRating = ({ rating, setRating }) => {
   return (
@@ -24,14 +25,9 @@ const StarRating = ({ rating, setRating }) => {
 
 export default function PublicProfile() {
   const navigate = useNavigate();
+  const { user } = useAuth0();
   const { id } = useParams();
-  // const [user, setUser] = useState({
-  //   rating: 0,
-  //   name: '',
-  //   pronouns: '',
-  //   profilePictureFile: '',
-  // });
-  const [user, setUser] = useState({});
+  const [localUser, setUser] = useState({});
   const [posts, setPosts] = useState([]);
   const [reviewData, setReviewData] = useState({
     rating: 0,
@@ -73,8 +69,9 @@ export default function PublicProfile() {
           name: res.data.name,
           pronouns: res.data.pronouns,
           profilePictureFile: res.data.profilePictureFile,
+          email: res.data.email,
         }));
-        console.log('User inside fetchUser', user);
+        console.log('User inside fetchUser', localUser);
         setPosts(res.data.posts);
         console.log('res.data', res.data);
         console.log('res.data.posts', res.data.posts);
@@ -106,11 +103,11 @@ export default function PublicProfile() {
       <Navbar />
       <div className="flex mt-14 w-full bg-orange-200 p-3 justify-around">
         <div className="flex ">
-          {user && user.rating && (
+          {localUser && localUser.rating && (
             <div className="flex items-center">
-              <StarRating rating={user.rating} setRating={() => {}} />
+              <StarRating rating={localUser.rating} setRating={() => {}} />
               <div className="text-2xl ml-2">
-                {user.rating.toFixed(1)} ({reviews.length} reviews)
+                {localUser.rating.toFixed(1)} ({reviews.length} reviews)
               </div>
             </div>
           )}
@@ -118,18 +115,34 @@ export default function PublicProfile() {
         <div className="flex items-center space-x-5">
           <Avatar
             src={
-              user &&
+              localUser &&
               `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/${
-                user.profilePictureFile
+                localUser.profilePictureFile
               }`
             }
             size="xl"
             radius="xl"
-            alt={user && user.name}
+            alt={localUser && localUser.name}
           />
-          <div className="text-4xl">{user && user.name}</div>
-          <div className="text-2xl mt-2 font-mono">{user && user.pronouns}</div>
+          <div className="text-4xl">{localUser && localUser.name}</div>
+          <div className="text-2xl mt-2 font-mono">
+            {localUser && localUser.pronouns}
+          </div>
         </div>
+        {user.email === localUser.email ? null : (
+          <>
+            {console.log('user', user.email)}
+            {console.log('localUser', localUser.email)}
+            <div className="flex items-center ">
+              <Button
+                color="orange"
+                onClick={() => navigate(`/messages/${id}`)}
+              >
+                Message
+              </Button>
+            </div>
+          </>
+        )}
       </div>
       <div className="overflow-x-auto whitespace-nowrap">
         <h1 className="text-4xl text-white p-5">All Posts</h1>

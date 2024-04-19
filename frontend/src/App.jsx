@@ -8,25 +8,23 @@ import { useAuth0 } from '@auth0/auth0-react';
 import LoginRedirect from './pages/LoginRedirect';
 import EditPost from './pages/EditPost';
 import MyPosts from './pages/MyPosts';
-
 import NotAuthorized from './pages/NotAuthorized';
-
 import ItemPage from './pages/ItemPage';
-
 import { io } from 'socket.io-client';
 import PublicProfile from './pages/PublicProfile';
 
 export default function App() {
   const { isAuthenticated } = useAuth0();
   const [socket, setSocket] = useState(null);
-  useEffect(() => {
-    console.log('Creating socket connection...');
-    const socket = io(`${import.meta.env.VITE_APP_SOCKET_BASE_URL}`);
-    setSocket(socket);
-    return () => {
-      socket.close();
-    };
-  }, []);
+  // useEffect(() => {
+  //   console.log('Creating socket connection...');
+  //   const socket = io(`${import.meta.env.VITE_APP_SOCKET_BASE_URL}`);
+  //   setSocket(socket);
+  //   return () => {
+  //     socket.close();
+  //   };
+  // }, []);
+  
   if (isAuthenticated) {
     return (
       <BrowserRouter>
