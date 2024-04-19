@@ -3,9 +3,11 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useAuth0 } from '@auth0/auth0-react';
 import { Carousel } from '@mantine/carousel';
-import { Image, Avatar } from '@mantine/core';
+import { Image, Avatar, ActionIcon } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 import PublicProfile from './PublicProfile';
+import BookmarkIcon from '../assets/icons/BookmarkIcon';
+import BookmarkSlashIcon from '../assets/icons/BookmarkSlashIcon';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -31,6 +33,22 @@ export default function Home() {
     };
     getUserAndPosts();
   }, []);
+
+  const handleBookmarkClick = async (postId) => {
+    try {
+      await axios.post(
+        `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/user/addToWishList`,
+        {
+          userId: currUser.id,
+          postId: postId,
+        },
+      );
+      console.log('Successfully added to wishlist');
+    } catch (error) {
+      console.log('error in handleBookmarkClick', error);
+    }
+  };
+
   return (
     <>
       <Navbar />
@@ -42,6 +60,12 @@ export default function Home() {
                 key={post.id}
                 className="rounded overflow-hidden shadow-lg p-6 bg-orange-200"
               >
+                <ActionIcon
+                  className="relative top-0 right-0 m-2 hover:cursor-pointer"
+                  onClick={() => handleBookmarkClick(post.id)}
+                >
+                  <BookmarkIcon />
+                </ActionIcon>
                 <Carousel withIndicators loop>
                   {post.photos.map((photo) => (
                     <Carousel.Slide key={photo}>

@@ -668,26 +668,75 @@ const getAverageRating = async (req, res) => {
         userId: parseInt(id),
       },
     });
-    console.log("reviews", reviews)
+    console.log('reviews', reviews);
     const total = await prisma.review.count({
       where: {
         userId: parseInt(id),
       },
     });
-    console.log("total", total)
+    console.log('total', total);
     let sum = 0;
-    for(let i = 0; i < total; i++) {
+    for (let i = 0; i < total; i++) {
       sum += reviews[i].rating;
     }
-    console.log("sum", sum)
+    console.log('sum', sum);
     let average = sum / total;
-    console.log("average", average)
+    console.log('average', average);
     average = Math.round(average * 10) / 10;
-    console.log("average", average)
+    console.log('average', average);
     res.status(200).json({ average: average });
   } catch (error) {
     console.error('Failed to get average rating:', error);
     res.status(500).send({ error: 'Failed to get average rating.' });
+  }
+};
+
+const addToWishList = async (req, res) => {
+  const { userId, postId } = req.body;
+  try {
+    await prisma.wishList.create({
+      data: {
+        userId: parseInt(userId),
+        postId: parseInt(postId),
+      },
+    });
+    res.status(200).json({ message: 'Post added to wishlist successfully!' });
+  } catch (error) {
+    console.error('Failed to add post to wishlist:', error);
+    res.status(500).send({ error: 'Failed to add post to wishlist.' });
+  }
+};
+
+const removeFromWishList = async (req, res) => {
+  const { userId, postId } = req.body;
+  try {
+    await prisma.wishList.deleteMany({
+      where: {
+        userId: parseInt(userId),
+        postId: parseInt(postId),
+      },
+    });
+    res
+      .status(200)
+      .json({ message: 'Post removed from wishlist successfully!' });
+  } catch (error) {
+    console.error('Failed to remove post from wishlist:', error);
+    res.status(500).send({ error: 'Failed to remove post from wishlist.' });
+  }
+};
+
+const getWishList = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const wishList = await prisma.wishList.findMany({
+      where: {
+        userId: parseInt(id),
+      },
+    });
+    res.status(200).json(wishList);
+  } catch (error) {
+    console.error('Failed to get wishlist:', error);
+    res.status(500).send({ error: 'Failed to get wishlist.' });
   }
 };
 
@@ -734,6 +783,9 @@ const addRoutes = (router) => {
   router.post('/api/user/addAReview', addAReview);
   router.get('/api/user/getAllReviews/:id', getAllReviews);
   router.get('/api/user/getAverageRating/:id', getAverageRating);
+  router.post('/api/user/addToWishList', addToWishList);
+  router.post('/api/user/removeFromWishList', removeFromWishList);
+  router.get('/api/user/getWishList/:id', getWishList);
 };
 
 module.exports = {

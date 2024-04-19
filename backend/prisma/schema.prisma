@@ -8,28 +8,30 @@ generator client {
 }
 
 model User {
-  id             Int      @id @default(autoincrement())
-  email          String   @unique
+  id             Int        @id @default(autoincrement())
+  email          String     @unique
   name           String?
   pronouns       String?
-  bio            String?  @db.VarChar(116)
+  bio            String?    @db.VarChar(116)
   profilePicture String?
   posts          Post[]
   Reviews        Review[]
-  archived       Boolean  @default(false)
+  WishList       WishList[]
+  archived       Boolean    @default(false)
 }
 
 model Post {
-  id           Int      @id @default(autoincrement())
+  id           Int        @id @default(autoincrement())
   title        String?
   desc         String?
   price        Int?
   photosFolder String?
-  user         User     @relation(fields: [userId], references: [id])
+  user         User       @relation(fields: [userId], references: [id])
   userId       Int
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  archived     Boolean  @default(false)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  WishList     WishList[]
+  archived     Boolean    @default(false)
 }
 
 model Review {
@@ -38,4 +40,12 @@ model Review {
   rating  Int?
   User    User    @relation(fields: [userId], references: [id])
   userId  Int
+}
+
+model WishList {
+  id     Int  @id @default(autoincrement())
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+  post   Post @relation(fields: [postId], references: [id])
+  postId Int
 }

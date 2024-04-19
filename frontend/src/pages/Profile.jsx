@@ -12,9 +12,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 import Navbar from '../components/Navbar';
 import axios from 'axios';
 import { Tabs } from '@mantine/core';
-
 import { Carousel } from '@mantine/carousel';
-import './Profile.css';
 import { useNavigate } from 'react-router-dom';
 import TrashIcon from '../assets/icons/TrashIcon';
 import EditIcon from '../assets/icons/EditIcon';
@@ -181,6 +179,7 @@ export default function Profile() {
         <div className="flex fixed flex-col h-screen bg-green-800 pt-16 justify-between items-center">
           <Tabs.List>
             <Tabs.Tab value="my-posts">My Posts</Tabs.Tab>
+            <Tabs.Tab value="wish-list">Wish List</Tabs.Tab>
             <Tabs.Tab value="update-profile">Update Profile</Tabs.Tab>
           </Tabs.List>
           <div className="mb-3">
@@ -345,6 +344,7 @@ export default function Profile() {
             )}
           </div>
         </Tabs.Panel>
+        <Tabs.Panel value="wish-list">f</Tabs.Panel>
         <Tabs.Panel value="update-profile">
           <div className="flex flex-col h-screen space-y-10 justify-center items-center">
             {showConfirmation && (
