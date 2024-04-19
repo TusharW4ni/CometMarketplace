@@ -360,7 +360,7 @@ export default function Profile() {
               }}
             >
               <Avatar
-                size="lg"
+                size="xl"
                 className="hover:cursor-pointer"
                 src={
                   formData.profilePicture.includes('blob')

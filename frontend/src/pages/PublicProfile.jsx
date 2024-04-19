@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import { Button, TextInput, Avatar } from '@mantine/core';
 import { Carousel } from '@mantine/carousel';
 import Navbar from '../components/Navbar';
+import { useNavigate } from 'react-router-dom';
 
 const StarRating = ({ rating, setRating }) => {
   return (
@@ -22,7 +23,14 @@ const StarRating = ({ rating, setRating }) => {
 };
 
 export default function PublicProfile() {
+  const navigate = useNavigate();
   const { id } = useParams();
+  // const [user, setUser] = useState({
+  //   rating: 0,
+  //   name: '',
+  //   pronouns: '',
+  //   profilePictureFile: '',
+  // });
   const [user, setUser] = useState({});
   const [posts, setPosts] = useState([]);
   const [reviewData, setReviewData] = useState({
@@ -31,23 +39,9 @@ export default function PublicProfile() {
   });
   const [reviews, setReviews] = useState([]);
   const [refresh, setRefresh] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/getUserById/${id}`,
-        );
-        setUser(res.data);
-        setPosts(res.data.posts);
-        console.log('res.data', res.data);
-        console.log('res.data.posts', res.data.posts);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchUser();
-  }, []);
+  useEffect(() => {}, []);
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -63,12 +57,32 @@ export default function PublicProfile() {
           }/api/user/getAverageRating/${id}`,
         );
         setReviews(res.data);
-        setUser({ ...user, rating: avg.data.average });
+        setUser((prevUser) => ({ ...prevUser, rating: avg.data.average }));
       } catch (error) {
         console.error(error);
       }
     };
-    fetchReviews();
+    const fetchUser = async () => {
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/getUserById/${id}`,
+        );
+        console.log('res.data', res.data);
+        setUser((prevUser) => ({
+          ...prevUser,
+          name: res.data.name,
+          pronouns: res.data.pronouns,
+          profilePictureFile: res.data.profilePictureFile,
+        }));
+        console.log('User inside fetchUser', user);
+        setPosts(res.data.posts);
+        console.log('res.data', res.data);
+        console.log('res.data.posts', res.data.posts);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchUser().then(() => fetchReviews().then(() => setLoading(false)));
   }, [refresh]);
 
   const submitReview = async () => {
@@ -140,7 +154,12 @@ export default function PublicProfile() {
                 </Carousel>
                 <div className="px-6 py-4">
                   <div className="flex space-x-5">
-                    <div className=" flex-grow font-bold bg-orange-500 p-1 rounded-full justify-center flex text-xl mb-2 hover:cursor-pointer hover:text-blue-300 hover:underline">
+                    <div
+                      className="flex-grow font-bold bg-orange-500 p-1 rounded-full justify-center flex text-xl mb-2 hover:cursor-pointer hover:text-blue-300 hover:underline"
+                      onClick={() => {
+                        navigate(`/item/${post.id}`);
+                      }}
+                    >
                       {post.title}
                     </div>
                     <div className="  items-center text-gray-700 bg-orange-300 rounded-full justify-center flex p-2">

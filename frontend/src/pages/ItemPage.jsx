@@ -1,4 +1,3 @@
-//Keejun
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
@@ -6,8 +5,10 @@ import Navbar from '../components/Navbar';
 import { Carousel } from '@mantine/carousel';
 import { Image, Avatar } from '@mantine/core';
 import { useAuth0 } from '@auth0/auth0-react';
+import { useNavigate } from 'react-router-dom';
 
 function ItemPage() {
+  const navigate = useNavigate();
   const [item, setItem] = useState({});
   const { user } = useAuth0();
   const [name, setName] = useState('');
@@ -43,9 +44,9 @@ function ItemPage() {
   return (
     <>
       <Navbar />
-      <div className="flex">
-        <div className="flex h-screen w-2/3 items-center">
-          <Carousel withIndicators loop>
+      <div className="flex items-center justify-center m-44 space-x-20">
+        <div className="">
+          <Carousel withIndicators>
             {Array.isArray(item?.photos) &&
               item.photos.map((photo) => (
                 <Carousel.Slide key={photo}>
@@ -59,7 +60,7 @@ function ItemPage() {
               ))}
           </Carousel>
         </div>
-        <div className="flex w-1/2 justify-center h-full pt-48 pb-36">
+        <div className="">
           <div className="flex p-10 bg-orange-200 rounded-lg shadow-lg ">
             <div className="flex flex-col">
               <div className="flex">
@@ -79,11 +80,16 @@ function ItemPage() {
               </div>
 
               <div className="flex flex-col bg-orange-300 mt-3 p-4 rounded-lg justify-center items-center hover:underline hover:cursor-pointer hover:bg-orange-500">
-                <div className="flex space-x-5">
-                  <Avatar size="lg" src={profilePicture} />
+                <div
+                  className="flex space-x-5"
+                  onClick={() => {
+                    navigate(`/profile/${item.user.id}`);
+                  }}
+                >
+                  <Avatar size="lg" src={profilePicture && profilePicture} />
                   <div>
-                    <div className="text-xl">{name}</div>
-                    <div>{pronouns}</div>
+                    <div className="text-xl">{name && name}</div>
+                    <div>{pronouns && pronouns}</div>
                   </div>
                 </div>
               </div>
