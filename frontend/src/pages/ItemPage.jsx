@@ -4,84 +4,89 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
 import { Carousel } from '@mantine/carousel';
-import { Image } from '@mantine/core';
+import { Image, Avatar } from '@mantine/core';
+import { useAuth0 } from '@auth0/auth0-react';
 
 function ItemPage() {
   const [item, setItem] = useState({});
-  // const [isLoading, setIsLoading] = useState(false);
-  // const [error, setError] = useState('');
+  const { user } = useAuth0();
+  const [name, setName] = useState('');
+  const [pronouns, setPronouns] = useState('');
+  const [profilePicture, setProfilePicture] = useState('');
 
   const { id } = useParams();
 
   useEffect(() => {
     const fetchItemDetails = async () => {
-      
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/post/${id}`,
+        );
+        setItem(res.data);
+        setName(res.data.user.name);
+        setPronouns(res.data.user.pronouns);
+        setProfilePicture(
+          res.data.user.profilePicture
+            ? `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/${
+                res.data.user.profilePicture
+              }`
+            : user.picture,
+        );
+        console.log('item', res.data);
+      } catch (error) {
+        console.error(error);
+      }
     };
-
     fetchItemDetails();
   }, []);
-
-  if (isLoading) {
-    return (
-      <div className="text-center">
-        <p>Loading item details...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="text-center">
-        <p className="text-red-600">{error}</p>
-        <button
-          onClick={() => window.location.reload()}
-          className="mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Retry
-        </button>
-      </div>
-    );
-  }
 
   return (
     <>
       <Navbar />
-      <div className="container mx-auto mt-10">
-        <div className="flex flex-col h-screen">
+      <div className="flex">
+        <div className="flex h-screen w-2/3 items-center">
           <Carousel withIndicators loop>
-            {item.photo.map((pho) => (
-              <Carousel.Slide key={pho}>
-                <Image
-                  src={`${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/${pho}`}
-                  alt={item.title}
-                />
-              </Carousel.Slide>
-            ))}
+            {Array.isArray(item?.photos) &&
+              item.photos.map((photo) => (
+                <Carousel.Slide key={photo}>
+                  <Image
+                    src={`${
+                      import.meta.env.VITE_APP_EXPRESS_BASE_URL
+                    }/${photo}`}
+                    alt={item.title}
+                  />
+                </Carousel.Slide>
+              ))}
           </Carousel>
-          <div
-            className="mt-auto p-5 shadow-lg rounded-lg bg-white"
-            style={{ marginBottom: '6rem' }}
-          >
-            <h3 className="text-xl leading-6 font-medium text-gray-900">
-              Title: {item.title}
-            </h3>
-            <div className="mt-2">
-              <div className="text-sm font-medium text-gray-500">Price:</div>
-              <span className="text-sm text-gray-900">{item.price}</span>
-            </div>
-            <div className="mt-2">
-              <div className="text-sm font-medium text-gray-500">Contact:</div>
-              <span className="text-sm text-gray-900">{item.email}</span>
-            </div>
-            <div className="mt-2">
-              <div className="text-sm font-medium text-gray-500">
-                Description:
+        </div>
+        <div className="flex w-1/2 justify-center h-full pt-48 pb-36">
+          <div className="flex p-10 bg-orange-200 rounded-lg shadow-lg ">
+            <div className="flex flex-col">
+              <div className="flex">
+                <h1 className="text-4xl font-mono font-bold underline text-center">
+                  {item.title}
+                </h1>
+                <div className="text-2xl  items-center mt-2 ml-4">
+                  {new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                  }).format(item.price)}
+                </div>
               </div>
-              <p className="mt-1 text-sm text-gray-700">{item.description}</p>
-            </div>
-            <div className="mt-2 mb-4">
-              <div className="text-sm font-medium text-gray-500">Rating:</div>
-              <span className="text-sm text-gray-900"></span>
+
+              <div className="flex bg-orange-300 mt-3 p-4 rounded-lg justify-center items-center">
+                <div className="flex text-2xl">{item.desc}</div>
+              </div>
+
+              <div className="flex flex-col bg-orange-300 mt-3 p-4 rounded-lg justify-center items-center hover:underline hover:cursor-pointer hover:bg-orange-500">
+                <div className="flex space-x-5">
+                  <Avatar size="lg" src={profilePicture} />
+                  <div>
+                    <div className="text-xl">{name}</div>
+                    <div>{pronouns}</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

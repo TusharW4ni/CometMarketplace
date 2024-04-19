@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const { PrismaClient } = require('@prisma/client');
+const { get } = require('http');
 const prisma = new PrismaClient();
 
 //keejun just get post information through postID
@@ -41,21 +42,6 @@ const getPostinfo = async (req, res) => {
     console.log(responsePost);
   } catch (error) {
     console.error('error in /api/user/get-post/:postId', error);
-    res.status(500).json({ error: error.message });
-  }
-};
-
-const getUserById = async (req, res) => {
-  const { id } = req.params;
-  try {
-    const user = await prisma.user.findUnique({
-      where: {
-        id: parseInt(id),
-      },
-    });
-    res.status(200).json(user);
-  } catch (error) {
-    console.log('error in /api/getUserById', error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -350,6 +336,7 @@ const getUserPost = async (req, res) => {
 //   }
 // };
 
+// ----------------------------------------------------------
 const getUser = async (req, res) => {
   const { email } = req.body;
   try {
@@ -387,7 +374,57 @@ const getUser = async (req, res) => {
   }
 };
 
-// ----------------------------------------------------------
+const getUserById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: parseInt(id),
+        archived: false,
+      },
+      include: {
+        posts: {
+          where: {
+            archived: false,
+          },
+        },
+      },
+    });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Read the profile picture directory
+    const profilePictureDir = user.profilePicture;
+    let profilePictureFile = null;
+
+    if (fs.existsSync(profilePictureDir)) {
+      const files = fs.readdirSync(profilePictureDir);
+      if (files.length > 0) {
+        // Assume the first file is the profile picture
+        profilePictureFile = path.join(profilePictureDir, files[0]);
+      }
+    }
+
+    // Add the profile picture path to the user object
+    user.profilePictureFile = profilePictureFile;
+
+    // Add photos to each post
+    for (let post of user.posts) {
+      const dir = post.photosFolder;
+      if (fs.existsSync(dir)) {
+        post.photos = fs.readdirSync(dir).map((file) => `${dir}/${file}`);
+      } else {
+        post.photos = [];
+      }
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.log('error in /api/getUserById', error);
+    res.status(500).json({ error: error.message });
+  }
+};
 
 const updateProfile = async (req, res) => {
   const { id, name, email, pronouns, bio } = req.body;
@@ -557,12 +594,106 @@ const updatePost = async (req, res) => {
     console.log('error in /api/post/updatePost', error);
     res.status(500).json({ error: error.message });
   }
-}
+};
+
+const getPost = async (req, res) => {
+  const { postId } = req.params;
+  try {
+    const post = await prisma.post.findUnique({
+      where: { id: parseInt(postId), archived: false },
+      include: {
+        user: true,
+      },
+    });
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    const dir = post.photosFolder;
+    if (fs.existsSync(dir)) {
+      post.photos = fs.readdirSync(dir).map((file) => `${dir}/${file}`);
+    }
+    const profilePictureDir = post.user.profilePicture;
+    if (fs.existsSync(profilePictureDir)) {
+      const files = fs.readdirSync(profilePictureDir);
+      if (files.length > 0) {
+        post.user.profilePicture = `${profilePictureDir}/${files[0]}`;
+      }
+    }
+
+    res.status(200).json(post);
+  } catch (error) {
+    console.log('error in /api/post/:postId', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const addAReview = async (req, res) => {
+  const { userId, comment, rating } = req.body;
+  try {
+    await prisma.review.create({
+      data: {
+        userId: parseInt(userId),
+        comment: comment,
+        rating: parseInt(rating),
+      },
+    });
+    res.status(200).json({ message: 'Review added successfully!' });
+  } catch (error) {
+    console.error('Failed to add review:', error);
+    res.status(500).send({ error: 'Failed to add review.' });
+  }
+};
+
+const getAllReviews = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const reviews = await prisma.review.findMany({
+      where: {
+        userId: parseInt(id),
+      },
+    });
+    res.status(200).json(reviews);
+  } catch (error) {
+    console.error('Failed to get all reviews:', error);
+    res.status(500).send({ error: 'Failed to get all reviews.' });
+  }
+};
+
+const getAverageRating = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const reviews = await prisma.review.findMany({
+      where: {
+        userId: parseInt(id),
+      },
+    });
+    console.log("reviews", reviews)
+    const total = await prisma.review.count({
+      where: {
+        userId: parseInt(id),
+      },
+    });
+    console.log("total", total)
+    let sum = 0;
+    for(let i = 0; i < total; i++) {
+      sum += reviews[i].rating;
+    }
+    console.log("sum", sum)
+    let average = sum / total;
+    console.log("average", average)
+    average = Math.round(average * 10) / 10;
+    console.log("average", average)
+    res.status(200).json({ average: average });
+  } catch (error) {
+    console.error('Failed to get average rating:', error);
+    res.status(500).send({ error: 'Failed to get average rating.' });
+  }
+};
 
 const addRoutes = (router) => {
   // router.post('/api/user/update-profile/:id', updateUserProfile);
-  router.post('/api/getUser', getUser);
-  router.get('/api/getUserById/:id', getUserById);
+
   router.post('/api/newUser', newUser);
   router.post('/api/user/new-post', newPost);
   router.post(
@@ -576,7 +707,6 @@ const addRoutes = (router) => {
   //   handleProfilePictureUpload,
   // );
   // router.get('/api/user/get-posts/:userId', getUserPosts);
-  router.get('/api/getAllPosts', getAllPosts);
   //vin
   router.put('/api/user/edit-a-post/:postId', editPost); //maybe add userId?
   router.post('/api/user/remove-post/', removePost); //here too
@@ -592,6 +722,18 @@ const addRoutes = (router) => {
   router.get('/api/user/getPostsForUser/:userId', getUserPosts);
   router.patch('/api/post/archivePost', archivePost);
   router.patch('/api/post/updatePost', updatePost);
+
+  router.get('/api/post/:postId', getPost);
+
+  router.get('/api/getAllPosts', getAllPosts);
+
+  router.post('/api/getUser', getUser);
+
+  router.get('/api/getUserById/:id', getUserById);
+
+  router.post('/api/user/addAReview', addAReview);
+  router.get('/api/user/getAllReviews/:id', getAllReviews);
+  router.get('/api/user/getAverageRating/:id', getAverageRating);
 };
 
 module.exports = {

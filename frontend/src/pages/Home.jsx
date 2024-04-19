@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useAuth0 } from '@auth0/auth0-react';
 import { Carousel } from '@mantine/carousel';
-import { Image } from '@mantine/core';
+import { Image, Avatar } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 import PublicProfile from './PublicProfile';
 
@@ -61,7 +61,6 @@ export default function Home() {
                       onClick={() => {
                         navigate(`/item/${post.id}`);
                       }}
-
                     >
                       {post.title}
                     </div>
@@ -72,10 +71,13 @@ export default function Home() {
                   <p className="text-gray-700 text-base flex justify-center mt-2 bg-orange-300 p-2 rounded-lg">
                     {post.desc}
                   </p>
-                  <p className="text-gray-700 text-base flex justify-center mt-2 underline hover:text-gray-900 hover:cursor-pointer bg-orange-300 p-1 rounded-lg hover:cursor-pointer"
-                    onClick={()=> {navigate(`/public-profile/${post.user.id}`)}}
+                  <p
+                    className="flex flex-col bg-orange-300 mt-3 p-4 rounded-lg justify-center items-center hover:underline hover:cursor-pointer hover:bg-orange-500"
+                    onClick={() => {
+                      navigate(`/profile/${post.user.id}`);
+                    }}
                   >
-                    {post.user.email}
+                    <div className="">{post.user.email}</div>
                   </p>
                 </div>
               </div>
