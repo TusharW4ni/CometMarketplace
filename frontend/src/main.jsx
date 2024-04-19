@@ -9,17 +9,17 @@ import { Auth0Provider } from '@auth0/auth0-react';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   // <React.StrictMode>
-    <MantineProvider>
-      <Auth0Provider
-        domain="dev-8ey6pfp5cskacl7c.us.auth0.com"
-        clientId="twj9UnkcaBzQmFD8yyiG7uRtQNBQ8Dff"
-        cacheLocation="localstorage"
-        authorizationParams={{
-          redirect_uri: window.location.origin + '/login-redirect',
-        }}
-      >
-        <App />
-      </Auth0Provider>
-    </MantineProvider>
+  <MantineProvider>
+    <Auth0Provider
+      domain="dev-8ey6pfp5cskacl7c.us.auth0.com"
+      clientId="twj9UnkcaBzQmFD8yyiG7uRtQNBQ8Dff"
+      cacheLocation="localstorage"
+      authorizationParams={{
+        redirect_uri: 'http://localhost:5173/login-redirect',
+      }}
+    >
+      <App />
+    </Auth0Provider>
+  </MantineProvider>,
   // </React.StrictMode>,
 );

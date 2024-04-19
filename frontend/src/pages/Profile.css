@@ -1,25 +1,3 @@
-.hover-button:hover {
-    transform: scale(1.05);
-    transition: transform 0.3s ease; 
-  }
-  
-  .remove-icon {
-    position: relative;
-    top: 0;
-    right: 0;
-    color: black;
-    border-radius: 50%;
-    padding: 5px;
-    cursor: pointer;
-    font-size: 21px; 
-    user-select: none;
-  }
-  .remove-icon:hover{
-    color: red;
-  }
-  
-  .profile-pic-wrapper {
-    position: relative;
-    display: inline-block;
-  }
-  
+.my-tabs .mantine-Tabs-root {
+  --tabs-color: #000 !important; /* Change this to your desired color */
+}

@@ -5,11 +5,11 @@ import MakePost from './pages/MakePost';
 import Profile from './pages/Profile';
 import Messages from './pages/Messages';
 import { useAuth0 } from '@auth0/auth0-react';
-import Login from './pages/Login';
 import LoginRedirect from './pages/LoginRedirect';
 import EditPost from './pages/EditPost';
 import MyPosts from './pages/MyPosts';
 
+import NotAuthorized from './pages/NotAuthorized';
 
 import ItemPage from './pages/ItemPage';
 
@@ -31,19 +31,18 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/not-authorized" element={<NotAuthorized />} />
           <Route path="/login-redirect" element={<LoginRedirect />} />
           <Route path="/make-post" element={<MakePost />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/messages" element={<Messages socket={socket}/>} />
+          <Route path="/messages" element={<Messages socket={socket} />} />
           <Route path="/item/:id" element={<ItemPage />} />
           <Route path="/my-posts" element={<MyPosts />} />
           <Route path="/edit-post/:postID" element={<EditPost />} />
-
         </Routes>
       </BrowserRouter>
     );
   } else {
-    return <Login />;
+    return <NotAuthorized />;
   }
 }

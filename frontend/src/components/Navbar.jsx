@@ -19,9 +19,16 @@ export default function Navbar() {
           `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/getUser`,
           { email: user.email },
         );
-        setProfilePicUrl(`${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/${response.data.profilePicture}`);
+        // setProfilePicUrl(`${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/${response.data.profilePicture}`);
+        response.data.profilePicture.includes('gravatar')
+          ? setProfilePicUrl(response.data.profilePicture)
+          : setProfilePicUrl(
+              `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/${
+                response.data.profilePictureFile
+              }`,
+            );
       } catch (error) {
-        console.error("Failed to fetch user details:", error);
+        console.error('Failed to fetch user details:', error);
       }
     };
 
@@ -29,10 +36,6 @@ export default function Navbar() {
       fetchUserDetails();
     }
   }, [user]);
-
-  const getUserInitials = (email) => {
-    return email ? email.substring(0, 2).toUpperCase() : "";
-  };
 
   return (
     <div className="flex fixed top-0 z-50 w-full p-2 bg-emerald-700 justify-between items-center">
@@ -79,12 +82,9 @@ export default function Navbar() {
           radius="xl"
           onClick={() => navigate('/profile')}
           className="hover:cursor-pointer mr-2"
-          src={profilePicUrl || undefined}
-        >
-          {!profilePicUrl && getUserInitials(user?.email)}
-        </Avatar>
+          src={profilePicUrl ? profilePicUrl : user.picture}
+        />
       </Tooltip>
     </div>
   );
 }
-
