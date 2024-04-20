@@ -77,13 +77,20 @@ export default function MyPosts() {
         {posts.length > 0 ? (
           posts.map((post) => (
             <div
+            
               key={post.id}
               className="rounded shadow-lg p-6 bg-orange-200 flex"
+              
             >
-              <Carousel withIndicators loop>
+              <Carousel withIndicators loop
+              style={{height:250, width:250}}
+              > 
                 {post.photos.map((photo) => (
-                  <Carousel.Slide key={photo} style={{height:250, width:250}}
+                  <Carousel.Slide 
+                  key={photo} 
                   //style={{height:250, width:250}}
+                  //style={{height:250, width:250}}
+                  
                   >
                     <Image
                       id={`${post.id}`}
@@ -91,7 +98,7 @@ export default function MyPosts() {
                         import.meta.env.VITE_APP_EXPRESS_BASE_URL
                       }/${photo}`}
                       alt={post.title}
-                      style={{height:"100%", width:"100%"}}
+                      style={{height:250, width:250}}
                     />
                   </Carousel.Slide>
                 ))}
