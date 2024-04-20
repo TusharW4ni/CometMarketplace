@@ -2,20 +2,48 @@ import Navbar from '../components/Navbar';
 import { useEffect, useState } from 'react';
 import { useContext } from 'react';
 import { SearchContext } from '../SearchContext';
-import { RangeSlider } from '@mantine/core';
+import { RangeSlider, ActionIcon, Image } from '@mantine/core';
+import axios from 'axios';
+import BookmarkIcon from '../assets/icons/BookmarkIcon';
+import { useNavigate } from 'react-router-dom';
+import { Carousel } from '@mantine/carousel';
 
 export default function Search() {
+  const navigate = useNavigate();
   const { searchTerm, setSearchTerm } = useContext(SearchContext);
-  const [priceRange, setPriceRange] = useState([25, 75]);
+  const [priceRange, setPriceRange] = useState([0, 100]);
+  const [products, setProducts] = useState([]);
 
   useEffect(() => {
     console.log('priceRange', priceRange);
-  }, [priceRange]);
+    console.log('searchTerm', searchTerm);
+  }, [priceRange, searchTerm]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await axios.post(
+          `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/getFilteredPosts`,
+          {
+            searchTerm: searchTerm,
+            minPrice: priceRange[0],
+            maxPrice: priceRange[1],
+          },
+        );
+        setProducts(res.data);
+        console.log('products', res.data);
+      } catch (error) {
+        console.log('error in getting filtered posts', error);
+      }
+    };
+
+    fetchProducts();
+  }, [searchTerm, priceRange]);
 
   return (
     <>
       <Navbar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-      <div className=" pt-96 bg-emerald-700 w-1/6 h-full fixed p-10 ">
+      <div className="pt-96 bg-emerald-700 w-1/6 h-full fixed p-10 ">
         <div className="text-white">Set Price Range</div>
         <RangeSlider
           min={0}
@@ -32,6 +60,67 @@ export default function Search() {
             { value: 100, label: '100+' },
           ]}
         />
+      </div>
+      <div className="mt-14">
+        <div className="grid grid-cols-1 p-5 md:grid-cols-2 lg:grid-cols-3 gap-10 ml-36">
+          {products.length > 0 ? (
+            products.map((post) => (
+              <div
+                key={post.id}
+                className="rounded overflow-hidden shadow-lg p-6 bg-orange-200"
+              >
+                <Carousel withIndicators>
+                  {post.photos.map((photo) => (
+                    <Carousel.Slide key={photo}>
+                      <Image
+                        src={`${
+                          import.meta.env.VITE_APP_EXPRESS_BASE_URL
+                        }/${photo}`}
+                        alt={post.title}
+                      />
+                    </Carousel.Slide>
+                  ))}
+                </Carousel>
+                <div className="px-6 py-4">
+                  <div className="flex space-x-5">
+                    <ActionIcon
+                      className="absolute top-0 right-0 m-2 hover:cursor-pointer"
+                      onClick={() => handleBookmarkClick(post.id)}
+                    >
+                      <BookmarkIcon />
+                    </ActionIcon>
+                    <div
+                      className=" flex-grow font-bold bg-orange-500 p-1 rounded-full justify-center flex text-xl mb-2 hover:cursor-pointer hover:text-blue-300 hover:underline"
+                      onClick={() => {
+                        navigate(`/item/${post.id}`);
+                      }}
+                    >
+                      {post.title}
+                    </div>
+                    <div className="  items-center text-gray-700 bg-orange-300 rounded-full justify-center flex p-2">
+                      ${Number(post.price).toLocaleString('en-US')}
+                    </div>
+                  </div>
+                  <p className="text-gray-700 text-base flex justify-center mt-2 bg-orange-300 p-2 rounded-lg">
+                    {post.desc}
+                  </p>
+                  <div
+                    className="flex flex-col bg-orange-300 mt-3 p-4 rounded-lg justify-center items-center hover:underline hover:cursor-pointer hover:bg-orange-500"
+                    onClick={() => {
+                      navigate(`/profile/${post.user.id}`);
+                    }}
+                  >
+                    <div className="">{post.user.email}</div>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="flex mt-20">
+              <h1 className="text-2xl text-white">No Result</h1>
+            </div>
+          )}
+        </div>
       </div>
     </>
   );

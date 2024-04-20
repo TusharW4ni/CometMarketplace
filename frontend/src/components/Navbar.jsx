@@ -12,7 +12,7 @@ import { useContext } from 'react';
 import { SearchContext } from '../SearchContext';
 
 export default function Navbar({ refresh }) {
-  const {searchTerm, setSearchTerm} = useContext(SearchContext);
+  const { searchTerm, setSearchTerm } = useContext(SearchContext);
   const navigate = useNavigate();
   const { user } = useAuth0();
   const [profilePicUrl, setProfilePicUrl] = useState(null);
@@ -70,8 +70,14 @@ export default function Navbar({ refresh }) {
         </Tooltip>
       </div>
       {/* Search Bar */}
-      <div className="w-6/12 flex items-center" onSubmit={() => navigate('/search')}>
-        <form className="flex-grow">
+      <div className="w-6/12 flex items-center">
+        <form
+          className="flex-grow"
+          onSubmit={(e) => {
+            e.preventDefault();
+            navigate('/search');
+          }}
+        >
           <input
             className="rounded-md p-2 w-full hover:border-2 hover:border-orange-300 focus:outline-none focus:border-2 focus:border-orange-500"
             type="text"
@@ -80,7 +86,13 @@ export default function Navbar({ refresh }) {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </form>
-        <ActionIcon type="submit" size="lg" className="ml-2" color="orange" onClick={() => navigate('/search')}>
+        <ActionIcon
+          type="submit"
+          size="lg"
+          className="ml-2"
+          color="orange"
+          onClick={() => navigate('/search')}
+        >
           <SearchIcon />
         </ActionIcon>
       </div>

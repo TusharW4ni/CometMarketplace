@@ -3,9 +3,10 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
 import { Carousel } from '@mantine/carousel';
-import { Image, Avatar } from '@mantine/core';
+import { Image, Avatar, ActionIcon } from '@mantine/core';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useNavigate } from 'react-router-dom';
+import ReportPostIcon from '../assets/icons/ReportPostIcon';
 
 function ItemPage() {
   const navigate = useNavigate();
@@ -45,6 +46,11 @@ function ItemPage() {
     <>
       <Navbar />
       <div className="flex items-center justify-center m-44 space-x-20">
+        <div className="fixed bottom-0 right-0 m-10 z-10">
+          <ActionIcon size="xl" color="red" onClick={() => navigate('/report')}>
+            <ReportPostIcon />
+          </ActionIcon>
+        </div>
         <div className="">
           <Carousel withIndicators>
             {Array.isArray(item?.photos) &&

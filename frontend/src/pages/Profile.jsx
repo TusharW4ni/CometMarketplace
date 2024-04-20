@@ -117,15 +117,15 @@ export function UpdateProfile({ refresh, setRefresh }) {
 
   return (
     <div className="flex flex-col h-screen space-y-10 justify-center items-center">
+      {/* confirmation */}
+      {showConfirmation && (
+        <div>
+          <p className="bg-orange-500 rounded-full text-white p-2 mt-4">
+            Profile Updated!
+          </p>
+        </div>
+      )}
       <div className="flex flex-col bg-gray-200 w-1/3 h-3/4 space-y-10 justify-center items-center p-10 rounded-lg border-4 border-orange-500">
-        {/* confirmation */}
-        {showConfirmation && (
-          <div>
-            <p className="bg-orange-500 rounded-full text-white p-2">
-              Profile Updated!
-            </p>
-          </div>
-        )}
         {/* profile picture */}
         <div
           onClick={() => {
@@ -556,7 +556,7 @@ export function WishList({ refresh, setRefresh }) {
         ))
       ) : (
         <div>
-          <h1 className="text-2xl text-white">No items wait-listsed</h1>
+          <h1 className="text-2xl text-white">No items in Your Wish List</h1>
         </div>
       )}
     </div>
@@ -581,7 +581,7 @@ export default function Profile() {
           <div className="flex fixed flex-col h-screen bg-emerald-700 justify-between items-center p-2 ">
             <div className="flex flex-col h-full  justify-center">
               <Tabs.List>
-                <Tabs.Tab value="update-profile">Update Profile</Tabs.Tab>
+                <Tabs.Tab value="update-profile">Profile</Tabs.Tab>
                 <Tabs.Tab value="my-posts">My Posts</Tabs.Tab>
                 <Tabs.Tab value="wish-list">Wish List</Tabs.Tab>
               </Tabs.List>

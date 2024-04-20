@@ -52,7 +52,7 @@ export default function Home() {
   return (
     <>
       <Navbar />
-      <div className="fixed bottom-0 right-0 m-10">
+      <div className="fixed bottom-0 right-0 m-10 z-10">
         <ActionIcon size="xl" color="red" onClick={() => navigate('/report')}>
           <ReportPostIcon />
         </ActionIcon>

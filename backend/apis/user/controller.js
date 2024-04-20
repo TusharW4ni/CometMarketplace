@@ -560,28 +560,45 @@ const getAllPosts = async (req, res) => {
 
 const getFilteredPosts = async (req, res) => {
   const { searchTerm, minPrice, maxPrice } = req.body;
+  let priceFilter = {};
+
+  if (maxPrice === 100) {
+    priceFilter = {
+      gte: parseInt(minPrice),
+    };
+  } else {
+    priceFilter = {
+      gte: parseInt(minPrice),
+      lte: parseInt(maxPrice),
+    };
+  }
+
+  let searchFilter = {};
+  if (searchTerm !== '') {
+    searchFilter = {
+      OR: [
+        {
+          title: {
+            contains: searchTerm,
+            mode: 'insensitive',
+          },
+        },
+        {
+          desc: {
+            contains: searchTerm,
+            mode: 'insensitive',
+          },
+        },
+      ],
+    };
+  }
+
   try {
     const posts = await prisma.post.findMany({
       where: {
         archived: false,
-        OR: [
-          {
-            title: {
-              contains: searchTerm,
-              mode: 'insensitive',
-            },
-          },
-          {
-            desc: {
-              contains: searchTerm,
-              mode: 'insensitive',
-            },
-          },
-        ],
-        price: {
-          gte: parseInt(minPrice),
-          lte: parseInt(maxPrice),
-        },
+        ...searchFilter,
+        price: priceFilter,
       },
       include: {
         user: true,
