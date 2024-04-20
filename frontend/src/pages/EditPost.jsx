@@ -223,7 +223,7 @@ export default function EditItem() {
       className="flex flex-col items-center">
         <div className="space-y-5">
           
-          <h1 className="text-2xl font-bold text-white mt-5">Item for Sale</h1>
+          <h1 className="text-2xl font-bold text-white mt-5">Edit Post</h1>
           <div className="flex space-x-40">
             <div>
               <Button component="label" htmlFor="fileUpload">
