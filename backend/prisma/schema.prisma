@@ -17,6 +17,7 @@ model User {
   posts          Post[]
   Reviews        Review[]
   WishList       WishList[]
+  Report         Report[]
   archived       Boolean    @default(false)
 }
 
@@ -48,4 +49,13 @@ model WishList {
   userId Int
   post   Post @relation(fields: [postId], references: [id])
   postId Int
+}
+
+model Report {
+  id                Int    @id @default(autoincrement())
+  user              User   @relation(fields: [userId], references: [id])
+  userId            Int
+  url               String
+  reportType        String
+  reportDescription String
 }

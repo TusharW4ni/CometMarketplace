@@ -558,6 +558,52 @@ const getAllPosts = async (req, res) => {
   }
 };
 
+const getFilteredPosts = async (req, res) => {
+  const { searchTerm, minPrice, maxPrice } = req.body;
+  try {
+    const posts = await prisma.post.findMany({
+      where: {
+        archived: false,
+        OR: [
+          {
+            title: {
+              contains: searchTerm,
+              mode: 'insensitive',
+            },
+          },
+          {
+            desc: {
+              contains: searchTerm,
+              mode: 'insensitive',
+            },
+          },
+        ],
+        price: {
+          gte: parseInt(minPrice),
+          lte: parseInt(maxPrice),
+        },
+      },
+      include: {
+        user: true,
+      },
+    });
+
+    for (let post of posts) {
+      const dir = post.photosFolder;
+      if (fs.existsSync(dir)) {
+        post.photos = fs.readdirSync(dir).map((file) => `${dir}/${file}`);
+      } else {
+        post.photos = [];
+      }
+    }
+
+    res.status(200).json(posts);
+  } catch (error) {
+    console.log('error in /api/getFilteredPosts', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 const archivePost = async (req, res) => {
   const { postId } = req.body;
   try {
@@ -732,11 +778,54 @@ const getWishList = async (req, res) => {
       where: {
         userId: parseInt(id),
       },
+      include: {
+        post: {
+          include: {
+            user: true,
+          },
+        },
+      },
     });
+
+    // Add photos to each post
+    for (let item of wishList) {
+      if (item.post && item.post.photosFolder) {
+        try {
+          const photosPath = path.resolve(item.post.photosFolder);
+          const photos = fs.readdirSync(photosPath);
+          item.post.photos = photos.map((photo) =>
+            path.join(item.post.photosFolder, photo),
+          );
+        } catch (error) {
+          console.error(
+            `Failed to read directory ${item.post.photosFolder}:`,
+            error,
+          );
+        }
+      }
+    }
     res.status(200).json(wishList);
   } catch (error) {
     console.error('Failed to get wishlist:', error);
     res.status(500).send({ error: 'Failed to get wishlist.' });
+  }
+};
+
+const createReport = async (req, res) => {
+  const { userId, url, reportType, reportDescription } = req.body;
+  try {
+    await prisma.report.create({
+      data: {
+        userId: parseInt(userId),
+        url: url,
+        reportType: reportType,
+        reportDescription: reportDescription,
+      },
+    });
+    res.status(200).json({ message: 'Report submitted successfully!' });
+  } catch (error) {
+    console.error('Failed to create report:', error);
+    res.status(500).send({ error: 'Failed to create report.' });
   }
 };
 
@@ -775,6 +864,7 @@ const addRoutes = (router) => {
   router.get('/api/post/:postId', getPost);
 
   router.get('/api/getAllPosts', getAllPosts);
+  router.post('/api/getFilteredPosts', getFilteredPosts);
 
   router.post('/api/getUser', getUser);
 
@@ -786,6 +876,7 @@ const addRoutes = (router) => {
   router.post('/api/user/addToWishList', addToWishList);
   router.post('/api/user/removeFromWishList', removeFromWishList);
   router.get('/api/user/getWishList/:id', getWishList);
+  router.post('/api/report/createReport', createReport);
 };
 
 module.exports = {

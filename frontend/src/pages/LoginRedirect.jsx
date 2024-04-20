@@ -50,9 +50,9 @@ export default function LoginRedirect() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen">
-      <div className="flex flex-col space-y-10 justify-center items-center shadow-lg border-2 border-gray-200 p-4 rounded-lg logo">
-        <img src={logo} className="logo" draggable="false" />
+    <div className="flex h-screen justify-center items-center">
+      <div className="flex flex-col border-2 border-orange-500 bg-zinc-700 p-6 rounded-lg logo">
+          <img src={logo} className="logo" draggable="false" />
       </div>
     </div>
   );

@@ -145,7 +145,7 @@ export default function PublicProfile() {
         )}
       </div>
       <div className="overflow-x-auto whitespace-nowrap">
-        <h1 className="text-4xl text-white p-5">All Posts</h1>
+        <h1 className="text-4xl text-white p-5">{localUser && localUser.name}'s Posts</h1>
         <div className="inline-grid grid-cols-1 p-5 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {posts.length > 0 ? (
             posts.map((post) => (

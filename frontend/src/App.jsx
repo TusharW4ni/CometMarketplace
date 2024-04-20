@@ -12,8 +12,13 @@ import NotAuthorized from './pages/NotAuthorized';
 import ItemPage from './pages/ItemPage';
 import { io } from 'socket.io-client';
 import PublicProfile from './pages/PublicProfile';
+import Report from './pages/Report';
+import Search from './pages/Search'
+
+import { SearchContext } from './SearchContext';
 
 export default function App() {
+  const [searchTerm, setSearchTerm] = useState('');
   const { isAuthenticated } = useAuth0();
   const [socket, setSocket] = useState(null);
   // useEffect(() => {
@@ -24,9 +29,10 @@ export default function App() {
   //     socket.close();
   //   };
   // }, []);
-  
+
   if (isAuthenticated) {
     return (
+      <SearchContext.Provider value={{ searchTerm, setSearchTerm }}>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -39,8 +45,11 @@ export default function App() {
           <Route path="/item/:id" element={<ItemPage />} />
           <Route path="/my-posts" element={<MyPosts />} />
           <Route path="/edit-post/:postID" element={<EditPost />} />
+          <Route path="/report" element={<Report />} />
+          <Route path="/search" element={<Search />} />
         </Routes>
       </BrowserRouter>
+      </SearchContext.Provider>
     );
   } else {
     return <NotAuthorized />;
