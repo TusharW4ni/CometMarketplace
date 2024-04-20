@@ -3,8 +3,6 @@ import { Button } from '@mantine/core';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useState } from 'react';
 
-/* SAHAJ BIYANI - Use-case 6: Add items to shopping cart (As seen on SE Doc) 
-If the code does not work as expected, recalc the useState*/
 export default function Cart() {
   const { logout } = useAuth0();
   const [cartItems, setCartItems] = useState([]);

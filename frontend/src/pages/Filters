@@ -1,0 +1,34 @@
+let gridApi;
+
+const gridOptions = {
+  columnDefs: [
+    { field: "Pricing", filter: "priceTextColumnFilter", minWidth: 200 },
+    { field: "Used/New Item" },
+    { field: "Location", minWidth: 180 },
+    { field: "Shipping Type" },
+    { field: "Listed date", minWidth: 150 },
+    { field: "Seller Rating" },
+    { field: "Availability" },
+  ],
+  defaultColDef: {
+    flex: 1,
+    minWidth: 100,
+    enableValue: true,
+    enableRowGroup: true,
+    enablePivot: true,
+    filter: true,
+  },
+  sideBar: "filters",
+};
+
+// setup the grid after the page has finished loading
+document.addEventListener("DOMContentLoaded", function () {
+  var gridDiv = document.querySelector("#myGrid");
+  gridApi = agGrid.createGrid(gridDiv, gridOptions);
+
+  api.forEachNodeAfterFilterAndSort((rowNode, index) => {
+    console.log('node ' + rowNode.data.athlete + ' passes the filter and is in this order')
+    .then((response) => response.json())
+    .then((data) => gridApi.setGridOption("rowData", data));
+  });
+});
