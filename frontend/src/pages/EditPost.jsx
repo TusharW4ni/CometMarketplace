@@ -53,6 +53,7 @@ export default function EditItem() {
         setDesc(post.desc);
         setUserID(userRes.data.id.toString());
 
+        console.log("photos: ", postRes.data.photos);
         
         console.log("userID data:", userID);
         setFormData({title: postRes.data.title, price: postRes.data.price, desc: postRes.data.desc, userId: userRes.data.id, postId: postID});
@@ -80,29 +81,42 @@ export default function EditItem() {
       
     };
 
+    const setURL = async () => 
+    {
+      const photourls = post.photos.map((photo) => `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/${photo}`)
+      console.log("photo urls: ", photourls);
+      setPreviewUrls(photourls);
+    };
+    
+
     getUserAndPost();
 
     //setFormData({...formData, title: title, price: price, desc: desc, userId: userID, postId: postID});
     settingFormData();
+    if (post.photos != undefined)
+    {
+      setURL();
+    }
     
+   
+    //setPreviewUrls(blob);
+    
+    
+    //const uploadedFiles = Array.from(.target.files);
+    //setFiles(uploadedFiles);
 
     
-  }, [post.title]);
- 
-  //console.log(formData);
-  // const editPost = async (newTitle) => {
-  //   const editPostResponse = await axios.post(`${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/user/edit-post/${postID}`, 
-  //   json.stringify({
-  //     title: newTitle
-  //   }))
-  // }
+}, [post.title]);
 
   const handleFileChange = (event) => {
+    console.log("files: ", event.target.files);
     const uploadedFiles = Array.from(event.target.files);
     setFiles(uploadedFiles);
+    console.log("uploadedFiles: ", uploadedFiles);
 
     // Create URLs representing the files
     const urls = uploadedFiles.map((file) => URL.createObjectURL(file));
+    console.log("urls: ", urls)
     setPreviewUrls(urls);
   };
 
