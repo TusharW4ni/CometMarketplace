@@ -20,7 +20,7 @@ import EditIcon from '../assets/icons/EditIcon';
 import CheckIcon from '../assets/icons/CheckIcon';
 import CrossIcon from '../assets/icons/CrossIcon';
 import { useHover } from '@mantine/hooks';
-import BookmarkSlashIcon from '../assets/icons/BookmarkSlashIcon';
+import BookmarkFilledIcon from '../assets/icons/BookmarkFilledIcon';
 
 export function UpdateProfile({ refresh, setRefresh }) {
   const { hovered, ref } = useHover();
@@ -371,6 +371,32 @@ export function MyPosts() {
             </div>
             <div className="flex justify-between w-full ">
               <Button
+                color="red"
+                onClick={() => {
+                  axios.patch(
+                    `${
+                      import.meta.env.VITE_APP_EXPRESS_BASE_URL
+                    }/api/post/archivePost`,
+                    { postId: post.id },
+                  );
+                  setRefresh(refresh + 1);
+                }}
+              >
+                <TrashIcon />
+              </Button>
+              {editClicked && whoClickedEdit === post.id ? (
+                <Button
+                  color="blue"
+                  onClick={() => {
+                    setEditClicked(false);
+                    setWhoClickedEdit(0);
+                    setEditFormData(defaultFormData);
+                  }}
+                >
+                  <CrossIcon />
+                </Button>
+              ) : null}
+              <Button
                 color="green"
                 onClick={async () => {
                   if (!editClicked) {
@@ -400,32 +426,6 @@ export function MyPosts() {
                 ) : (
                   <EditIcon />
                 )}
-              </Button>
-              {editClicked && whoClickedEdit === post.id ? (
-                <Button
-                  color="blue"
-                  onClick={() => {
-                    setEditClicked(false);
-                    setWhoClickedEdit(0);
-                    setEditFormData(defaultFormData);
-                  }}
-                >
-                  <CrossIcon />
-                </Button>
-              ) : null}
-              <Button
-                color="red"
-                onClick={() => {
-                  axios.patch(
-                    `${
-                      import.meta.env.VITE_APP_EXPRESS_BASE_URL
-                    }/api/post/archivePost`,
-                    { postId: post.id },
-                  );
-                  setRefresh(refresh + 1);
-                }}
-              >
-                <TrashIcon />
               </Button>
             </div>
           </div>
@@ -526,7 +526,7 @@ export function WishList({ refresh, setRefresh }) {
                   className="relative top-0 right-0 m-2 hover:cursor-pointer"
                   onClick={() => handleBookmarkSlashClick(post)}
                 >
-                  <BookmarkSlashIcon />
+                  <BookmarkFilledIcon />
                 </ActionIcon>
                 <div
                   className=" flex-grow font-bold bg-orange-500 p-1 rounded-full justify-center flex text-xl mb-2 hover:cursor-pointer hover:text-blue-300 hover:underline"

@@ -457,6 +457,10 @@ const storageForProfilePicture = multer.diskStorage({
 
     dir = `uploads/profilePicture/${userId}`;
 
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+
     fs.readdir(dir, (err, files) => {
       if (err) throw err;
 
@@ -470,9 +474,6 @@ const storageForProfilePicture = multer.diskStorage({
       }
     });
 
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
     cb(null, dir);
   },
   filename: (req, file, cb) => {
@@ -509,6 +510,9 @@ const getUserPosts = async (req, res) => {
         userId: parseInt(userId),
         archived: false,
       },
+      orderBy: {
+        updatedAt: 'desc',
+      },
     });
     if (!posts) {
       return res.status(404).json({ error: 'User not found' });
@@ -537,8 +541,16 @@ const getAllPosts = async (req, res) => {
       where: {
         archived: false,
       },
+      orderBy: {
+        updatedAt: 'desc',
+      },
       include: {
         user: true,
+        WishList: {
+          select: {
+            userId: true,
+          },
+        },
       },
     });
 
@@ -559,7 +571,7 @@ const getAllPosts = async (req, res) => {
 };
 
 const getFilteredPosts = async (req, res) => {
-  const { searchTerm, minPrice, maxPrice } = req.body;
+  const { searchTerm, minPrice, maxPrice, priceSort } = req.body;
   let priceFilter = {};
 
   if (maxPrice === 100) {
@@ -602,6 +614,9 @@ const getFilteredPosts = async (req, res) => {
       },
       include: {
         user: true,
+      },
+      orderBy: {
+        price: priceSort,
       },
     });
 
@@ -757,6 +772,15 @@ const getAverageRating = async (req, res) => {
 const addToWishList = async (req, res) => {
   const { userId, postId } = req.body;
   try {
+    const check = await prisma.wishList.findMany({
+      where: {
+        userId: parseInt(userId),
+        postId: parseInt(postId),
+      },
+    });
+    if (check.length > 0) {
+      return res.status(200).json({ message: 'Post already in wishlist!' });
+    }
     await prisma.wishList.create({
       data: {
         userId: parseInt(userId),

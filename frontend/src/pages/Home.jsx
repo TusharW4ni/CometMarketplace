@@ -8,12 +8,14 @@ import { useNavigate } from 'react-router-dom';
 import PublicProfile from './PublicProfile';
 import BookmarkIcon from '../assets/icons/BookmarkIcon';
 import ReportPostIcon from '../assets/icons/ReportPostIcon';
+import BookmarkFilledIcon from '../assets/icons/BookmarkFilledIcon';
 
 export default function Home() {
   const navigate = useNavigate();
   const { user } = useAuth0();
   const [posts, setPosts] = useState([]);
   const [currUser, setCurrUser] = useState({});
+  const [refresh, setRefresh] = useState(false);
   useEffect(() => {
     const getUserAndPosts = async () => {
       try {
@@ -31,8 +33,10 @@ export default function Home() {
         console.log('error in getUser', error);
       }
     };
-    getUserAndPosts();
-  }, []);
+    if (user) {
+      getUserAndPosts();
+    }
+  }, [refresh]);
 
   const handleBookmarkClick = async (postId) => {
     try {
@@ -43,6 +47,7 @@ export default function Home() {
           postId: postId,
         },
       );
+      setRefresh(!refresh);
       console.log('Successfully added to wishlist');
     } catch (error) {
       console.log('error in handleBookmarkClick', error);
@@ -79,12 +84,38 @@ export default function Home() {
                 </Carousel>
                 <div className="px-6 py-4">
                   <div className="flex space-x-5">
-                    <ActionIcon
-                      className="absolute top-0 right-0 m-2 hover:cursor-pointer"
-                      onClick={() => handleBookmarkClick(post.id)}
-                    >
-                      <BookmarkIcon />
-                    </ActionIcon>
+                    {post.userId !== currUser.id
+                      ? (console.log(
+                          'inside of post.userId !== currUser.id',
+                          post.WishList,
+                        ),
+                        post.WishList.some(
+                          (user) => user.userId === currUser.id,
+                        )
+                          ? (console.log(
+                              'inside of post.WishList.includes(currUser.id)',
+                            ),
+                            (
+                              <ActionIcon
+                                className="absolute top-0 right-0 m-2 hover:cursor-pointer"
+                                onClick={() => handleBookmarkClick(post.id)}
+                              >
+                                <BookmarkFilledIcon />
+                              </ActionIcon>
+                            ))
+                          : (console.log(
+                              'inside of else',
+                              post.WishList.userId,
+                            ),
+                            (
+                              <ActionIcon
+                                className="absolute top-0 right-0 m-2 hover:cursor-pointer"
+                                onClick={() => handleBookmarkClick(post.id)}
+                              >
+                                <BookmarkIcon />
+                              </ActionIcon>
+                            )))
+                      : null}
                     <div
                       className=" flex-grow font-bold bg-orange-500 p-1 rounded-full justify-center flex text-xl mb-2 hover:cursor-pointer hover:text-blue-300 hover:underline"
                       onClick={() => {
@@ -118,7 +149,6 @@ export default function Home() {
           )}
         </div>
       </div>
-      {/* </div> */}
     </>
   );
 }
