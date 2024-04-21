@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Navbar from '../components/Navbar';
 import { Button } from '@mantine/core';
 import PropTypes from 'prop-types';
+import SendIcon from '../assets/icons/SendIcon';
 
 Messages.propTypes = {
   socket: PropTypes.shape({
@@ -13,57 +14,63 @@ Messages.propTypes = {
 export default function Messages({ socket }) {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
+  const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    if (socket) {
-      socket.on('chat message', (msg) => {
-        setMessages((messages) => [...messages, msg]);
-      });
-    }
-
-    return () => {
-      if (socket) {
-        socket.off('chat message');
-      }
-    };
+    if (!socket) return;
+    socket.on('chat message', (data) => {
+      setMessages((list) => [...list, data]);
+    });
   }, [socket]);
 
-  const sendMessage = () => {
-    if (socket) {
-      socket.emit('chat message', message);
+  const sendMessage = async () => {
+    if (message !== '' && socket) {
+      await socket.emit('chat message', message);
+      setMessages((messages) => [...messages, message]);
       setMessage('');
     }
   };
 
   return (
-    <div className="flex mt-14 h-screen">
+    <>
       <Navbar />
-      <div className="w-64 fixed h-full bg-green-500 p-4 overflow-auto">
-        {messages.map((msg, index) => (
-          <div key={index} className="p-2 bg-blue-200 rounded-lg mb-2">
-            {msg}
-          </div>
-        ))}
-      </div>
-      <div className="flex ml-64 flex-col justify-between p-4 flex-grow">
-        <div className="overflow-auto">
-          <div className="p-2 bg-blue-200 rounded-lg mb-2">Hello</div>
-          <div className="p-2 bg-blue-200 rounded-lg mb-2">How are you?</div>
-          <div className="p-2 bg-green-200 rounded-lg mb-2">
-            Im good, thanks!
-          </div>
+      <div className="flex flex-col h-1/2 p-16 h-screen justify-center items-center">
+        <div className="relative bg-white w-1/2 h-3/4 rounded-t-lg overflow-y-auto">
+          {messages.map((msg, index) => (
+            <div
+              key={index}
+              className="p-2 m-3 bg-blue-300 rounded-lg "
+              ref={messagesEndRef}
+            >
+              {msg}
+            </div>
+          ))}
         </div>
-        <div className="h-12 bg-gray-200 p-8 flex items-center fixed bottom-0 mb-5 w-1/2 ml-52 rounded-lg">
-          <input
-            type="text"
-            className="flex-grow rounded-lg p-2 mr-2"
-            placeholder="Type a message"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-          />
-          <Button onClick={sendMessage}>Send</Button>
+        <div className=" w-1/2 bottom-0 p-5 bg-gray-500 rounded-b-lg">
+          <form>
+            <div className="flex items-center space-x-3">
+              <input
+                type="text"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                className="flex-grow p-2 rounded-lg hover:border-2 hover:border-orange-300 focus:outline-none focus:border-2 focus:border-orange-500"
+              />
+              <Button
+                type="submit"
+                onClick={(e) => {
+                  e.preventDefault();
+                  sendMessage();
+                }}
+                className="rounded-lg"
+                rightSection={<SendIcon />}
+                color="orange"
+              >
+                Send
+              </Button>
+            </div>
+          </form>
         </div>
       </div>
-    </div>
+    </>
   );
 }

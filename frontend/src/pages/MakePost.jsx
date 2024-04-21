@@ -76,6 +76,7 @@ export default function MakePost() {
     files.forEach((file) => {
       formDataObj.append('files', file);
     });
+    console.log("this is the fileDataObj from handleSumbit", formDataObj)
     try {
       await axios.post(
         `${

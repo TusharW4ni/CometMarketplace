@@ -1,6 +1,8 @@
 .logo {
   width: 300px;
-  border-radius: 10%;
+  border-radius: 2%;
+  border-color: orange;
+  border-width: 2px;
   animation: logo-animation 2s infinite;
 }
 

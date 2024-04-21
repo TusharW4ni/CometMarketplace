@@ -1,49 +1,73 @@
 import Navbar from '../components/Navbar';
 import { useEffect, useState } from 'react';
+import { useContext } from 'react';
+import { SearchContext } from '../SearchContext';
+import { RangeSlider, ActionIcon, Image, Checkbox, Radio } from '@mantine/core';
 import axios from 'axios';
-import { useAuth0 } from '@auth0/auth0-react';
-import { Carousel } from '@mantine/carousel';
-import { Image, Avatar, ActionIcon } from '@mantine/core';
-import { useNavigate } from 'react-router-dom';
-import PublicProfile from './PublicProfile';
 import BookmarkIcon from '../assets/icons/BookmarkIcon';
-import ReportPostIcon from '../assets/icons/ReportPostIcon';
+import { useNavigate } from 'react-router-dom';
+import { Carousel } from '@mantine/carousel';
+import { useAuth0 } from '@auth0/auth0-react';
 import BookmarkFilledIcon from '../assets/icons/BookmarkFilledIcon';
 
-export default function Home() {
+export default function Search() {
   const navigate = useNavigate();
   const { user } = useAuth0();
-  const [posts, setPosts] = useState([]);
-  const [currUser, setCurrUser] = useState({});
+  const { searchTerm, setSearchTerm } = useContext(SearchContext);
+  const [priceRange, setPriceRange] = useState([0, 100]);
+  const [priceSort, setPriceSort] = useState('asc');
+  const [products, setProducts] = useState([]);
+  const [localUser, setLocalUser] = useState({});
   const [refresh, setRefresh] = useState(false);
+
   useEffect(() => {
-    const getUserAndPosts = async () => {
+    const fetchUser = async () => {
       try {
-        const userRes = await axios.post(
+        const res = await axios.post(
           `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/getUser`,
           { email: user.email },
         );
-        setCurrUser(userRes.data);
-        const postsRes = await axios.get(
-          `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/getAllPosts`,
-        );
-        console.log('postsRes.data.posts', postsRes.data);
-        setPosts(postsRes.data);
+        setLocalUser(res.data);
       } catch (error) {
-        console.log('error in getUser', error);
+        console.log('error in getting user', error);
       }
     };
-    if (user) {
-      getUserAndPosts();
-    }
-  }, [refresh]);
+    fetchUser();
+  });
+
+  useEffect(() => {
+    console.log('priceRange', priceRange);
+    console.log('searchTerm', searchTerm);
+  }, [priceRange, searchTerm]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await axios.post(
+          `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/getFilteredPosts`,
+          {
+            searchTerm: searchTerm,
+            minPrice: priceRange[0],
+            maxPrice: priceRange[1],
+            priceSort: priceSort,
+          },
+        );
+        setProducts(res.data);
+        console.log('products', res.data);
+      } catch (error) {
+        console.log('error in getting filtered posts', error);
+      }
+    };
+
+    fetchProducts();
+  }, [searchTerm, priceRange, priceSort, refresh]);
 
   const handleBookmarkClick = async (postId) => {
     try {
       await axios.post(
         `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/user/addToWishList`,
         {
-          userId: currUser.id,
+          userId: localUser.id,
           postId: postId,
         },
       );
@@ -56,16 +80,41 @@ export default function Home() {
 
   return (
     <>
-      <Navbar />
-      <div className="fixed bottom-0 right-0 m-10 z-10">
-        <ActionIcon size="xl" color="red" onClick={() => navigate('/report')}>
-          <ReportPostIcon />
-        </ActionIcon>
+      <Navbar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+      <div className="pt-14 bg-emerald-700 w-1/6 h-full fixed p-3 ">
+        <div className="bg-green-300 mb-10 pl-3 pr-3 pb-6 pt-2 rounded-lg">
+          <div className="text-xl mb-3">Set Range</div>
+          <RangeSlider
+            min={0}
+            max={100}
+            color="orange"
+            defaultValue={priceRange}
+            onChange={setPriceRange}
+            step={25}
+            marks={[
+              { value: 0, label: '0' },
+              { value: 25, label: '25' },
+              { value: 50, label: '50' },
+              { value: 75, label: '75' },
+              { value: 100, label: '100+' },
+            ]}
+          />
+        </div>
+        <div className="bg-green-300 pl-3 pr-3 pb-6 pt-2 rounded-lg">
+          <div className="text-xl">Sort By</div>
+          <div className="mb-1">Price</div>
+          <Radio.Group value={priceSort} onChange={setPriceSort}>
+            <div className="space-y-2">
+              <Radio value="asc" label="Low-High" color="orange" />
+              <Radio value="desc" label="High-Low" color="orange" />
+            </div>
+          </Radio.Group>
+        </div>
       </div>
-      <div className="mt-20">
-        <div className="grid grid-cols-1 p-5 md:grid-cols-2 lg:grid-cols-3 gap-10">
-          {posts.length > 0 ? (
-            posts.map((post) => (
+      <div className="mt-14">
+        <div className="grid grid-cols-1 p-5 md:grid-cols-2 lg:grid-cols-3 gap-10 ml-80">
+          {products.length > 0 ? (
+            products.map((post) => (
               <div
                 key={post.id}
                 className="rounded overflow-hidden shadow-lg p-6 bg-orange-200"
@@ -84,9 +133,15 @@ export default function Home() {
                 </Carousel>
                 <div className="px-6 py-4">
                   <div className="flex space-x-5">
-                    {post.userId !== currUser.id ? (
+                    {/* <ActionIcon
+                      className="absolute top-0 right-0 m-2 hover:cursor-pointer"
+                      onClick={() => handleBookmarkClick(post.id)}
+                    >
+                      <BookmarkIcon />
+                    </ActionIcon> */}
+                    {post.userId !== localUser.id ? (
                       post.WishList.some(
-                        (user) => user.userId === currUser.id,
+                        (user) => user.userId === localUser.id,
                       ) ? (
                         <ActionIcon
                           className="absolute top-0 right-0 m-2 hover:cursor-pointer"
@@ -130,8 +185,8 @@ export default function Home() {
               </div>
             ))
           ) : (
-            <div className="flex items-center h-screen w-screen justify-center">
-              <h1 className="text-2xl text-white">No posts available</h1>
+            <div className="flex mt-20">
+              <h1 className="text-2xl text-white">No Result</h1>
             </div>
           )}
         </div>

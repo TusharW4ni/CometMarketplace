@@ -3,6 +3,9 @@ CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
     "email" TEXT NOT NULL,
     "name" TEXT,
+    "pronouns" TEXT,
+    "bio" VARCHAR(116),
+    "profilePicture" TEXT,
     "archived" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")

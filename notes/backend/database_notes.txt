@@ -1,6 +1,0 @@
-Use case of CometMarketplace:
-
-Various users
-  - be able to make posts
-    - need to define a post
-  - be able to message other users
