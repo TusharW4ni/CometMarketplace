@@ -51,7 +51,7 @@ function Report() {
   return (
     <>
       <Navbar />
-      <div className="container mx-auto mt-20 text-white">
+      <div className="mt-20 p-20 text-white">
         {confirmation && (
           <div className="flex w-full justify-center items-center">
             <div className="rounded-full bg-orange-500 px-2 py-1">
