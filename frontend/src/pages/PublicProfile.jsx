@@ -136,7 +136,7 @@ export default function PublicProfile() {
             <div className="flex items-center ">
               <Button
                 color="orange"
-                onClick={() => navigate(`/messages/${id}`)}
+                onClick={() => navigate(`/messages`)}
               >
                 Message
               </Button>

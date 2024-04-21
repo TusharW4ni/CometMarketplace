@@ -84,38 +84,25 @@ export default function Home() {
                 </Carousel>
                 <div className="px-6 py-4">
                   <div className="flex space-x-5">
-                    {post.userId !== currUser.id
-                      ? (console.log(
-                          'inside of post.userId !== currUser.id',
-                          post.WishList,
-                        ),
-                        post.WishList.some(
-                          (user) => user.userId === currUser.id,
-                        )
-                          ? (console.log(
-                              'inside of post.WishList.includes(currUser.id)',
-                            ),
-                            (
-                              <ActionIcon
-                                className="absolute top-0 right-0 m-2 hover:cursor-pointer"
-                                onClick={() => handleBookmarkClick(post.id)}
-                              >
-                                <BookmarkFilledIcon />
-                              </ActionIcon>
-                            ))
-                          : (console.log(
-                              'inside of else',
-                              post.WishList.userId,
-                            ),
-                            (
-                              <ActionIcon
-                                className="absolute top-0 right-0 m-2 hover:cursor-pointer"
-                                onClick={() => handleBookmarkClick(post.id)}
-                              >
-                                <BookmarkIcon />
-                              </ActionIcon>
-                            )))
-                      : null}
+                    {post.userId !== currUser.id ? (
+                      post.WishList.some(
+                        (user) => user.userId === currUser.id,
+                      ) ? (
+                        <ActionIcon
+                          className="absolute top-0 right-0 m-2 hover:cursor-pointer"
+                          onClick={() => handleBookmarkClick(post.id)}
+                        >
+                          <BookmarkFilledIcon />
+                        </ActionIcon>
+                      ) : (
+                        <ActionIcon
+                          className="absolute top-0 right-0 m-2 hover:cursor-pointer"
+                          onClick={() => handleBookmarkClick(post.id)}
+                        >
+                          <BookmarkIcon />
+                        </ActionIcon>
+                      )
+                    ) : null}
                     <div
                       className=" flex-grow font-bold bg-orange-500 p-1 rounded-full justify-center flex text-xl mb-2 hover:cursor-pointer hover:text-blue-300 hover:underline"
                       onClick={() => {

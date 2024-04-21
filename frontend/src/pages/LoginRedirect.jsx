@@ -17,6 +17,7 @@ export default function LoginRedirect() {
             await newUser();
           }
           navigate('/');
+          // props.submit(user.email);
         } else {
           navigate('/login');
         }
@@ -52,7 +53,7 @@ export default function LoginRedirect() {
   return (
     <div className="flex h-screen justify-center items-center">
       <div className="flex flex-col border-2 border-orange-500 bg-zinc-700 p-6 rounded-lg logo">
-          <img src={logo} className="logo" draggable="false" />
+        <img src={logo} className="logo" draggable="false" />
       </div>
     </div>
   );

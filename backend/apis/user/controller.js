@@ -4,6 +4,7 @@ const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const { PrismaClient } = require('@prisma/client');
 const { get } = require('http');
+const { isObject } = require('util');
 const prisma = new PrismaClient();
 
 //keejun just get post information through postID
@@ -614,6 +615,11 @@ const getFilteredPosts = async (req, res) => {
       },
       include: {
         user: true,
+        WishList: {
+          select: {
+            userId: true,
+          },
+        }
       },
       orderBy: {
         price: priceSort,
@@ -887,8 +893,8 @@ const addRoutes = (router) => {
   // );
   // router.get('/api/user/get-posts/:userId', getUserPosts);
   //vin
-  router.put('/api/user/edit-a-post/:postId', editPost); //maybe add userId?
-  router.post('/api/user/remove-post/', removePost); //here too
+  // router.put('/api/user/edit-a-post/:postId', editPost); //maybe add userId?
+  // router.post('/api/user/remove-post/', removePost); //here too
 
   router.get('/api/user/get-post/:postId', getUserPost);
   // ---------------------------------------------------------------

@@ -7,13 +7,33 @@ import axios from 'axios';
 import BookmarkIcon from '../assets/icons/BookmarkIcon';
 import { useNavigate } from 'react-router-dom';
 import { Carousel } from '@mantine/carousel';
+import { useAuth0 } from '@auth0/auth0-react';
+import BookmarkFilledIcon from '../assets/icons/BookmarkFilledIcon';
 
 export default function Search() {
   const navigate = useNavigate();
+  const { user } = useAuth0();
   const { searchTerm, setSearchTerm } = useContext(SearchContext);
   const [priceRange, setPriceRange] = useState([0, 100]);
   const [priceSort, setPriceSort] = useState('asc');
   const [products, setProducts] = useState([]);
+  const [localUser, setLocalUser] = useState({});
+  const [refresh, setRefresh] = useState(false);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await axios.post(
+          `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/getUser`,
+          { email: user.email },
+        );
+        setLocalUser(res.data);
+      } catch (error) {
+        console.log('error in getting user', error);
+      }
+    };
+    fetchUser();
+  });
 
   useEffect(() => {
     console.log('priceRange', priceRange);
@@ -40,7 +60,23 @@ export default function Search() {
     };
 
     fetchProducts();
-  }, [searchTerm, priceRange, priceSort]);
+  }, [searchTerm, priceRange, priceSort, refresh]);
+
+  const handleBookmarkClick = async (postId) => {
+    try {
+      await axios.post(
+        `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/user/addToWishList`,
+        {
+          userId: localUser.id,
+          postId: postId,
+        },
+      );
+      setRefresh(!refresh);
+      console.log('Successfully added to wishlist');
+    } catch (error) {
+      console.log('error in handleBookmarkClick', error);
+    }
+  };
 
   return (
     <>
@@ -97,12 +133,31 @@ export default function Search() {
                 </Carousel>
                 <div className="px-6 py-4">
                   <div className="flex space-x-5">
-                    <ActionIcon
+                    {/* <ActionIcon
                       className="absolute top-0 right-0 m-2 hover:cursor-pointer"
                       onClick={() => handleBookmarkClick(post.id)}
                     >
                       <BookmarkIcon />
-                    </ActionIcon>
+                    </ActionIcon> */}
+                    {post.userId !== localUser.id ? (
+                      post.WishList.some(
+                        (user) => user.userId === localUser.id,
+                      ) ? (
+                        <ActionIcon
+                          className="absolute top-0 right-0 m-2 hover:cursor-pointer"
+                          onClick={() => handleBookmarkClick(post.id)}
+                        >
+                          <BookmarkFilledIcon />
+                        </ActionIcon>
+                      ) : (
+                        <ActionIcon
+                          className="absolute top-0 right-0 m-2 hover:cursor-pointer"
+                          onClick={() => handleBookmarkClick(post.id)}
+                        >
+                          <BookmarkIcon />
+                        </ActionIcon>
+                      )
+                    ) : null}
                     <div
                       className=" flex-grow font-bold bg-orange-500 p-1 rounded-full justify-center flex text-xl mb-2 hover:cursor-pointer hover:text-blue-300 hover:underline"
                       onClick={() => {
