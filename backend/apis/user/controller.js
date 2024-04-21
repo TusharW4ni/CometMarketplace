@@ -619,7 +619,7 @@ const getFilteredPosts = async (req, res) => {
           select: {
             userId: true,
           },
-        }
+        },
       },
       orderBy: {
         price: priceSort,
@@ -735,6 +735,9 @@ const getAllReviews = async (req, res) => {
     const reviews = await prisma.review.findMany({
       where: {
         userId: parseInt(id),
+      },
+      orderBy: {
+        createdAt: 'desc',
       },
     });
     res.status(200).json(reviews);

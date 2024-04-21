@@ -195,6 +195,7 @@ export default function PublicProfile() {
           className="flex flex-col items-center bg-orange-400 p-5 rounded-lg shadow-lg w-1/2 h-1/2 "
           onSubmit={(e) => {
             e.preventDefault();
+            if (reviewData.rating === 0) return alert('Please select a rating');
             submitReview();
             setReviewData({ rating: 0, comment: '' });
           }}
