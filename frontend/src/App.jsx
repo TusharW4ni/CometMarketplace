@@ -14,19 +14,39 @@ import { io } from 'socket.io-client';
 import PublicProfile from './pages/PublicProfile';
 import Report from './pages/Report';
 import Search from './pages/Search';
+import axios from 'axios';
 
 import { SearchContext } from './SearchContext';
 
 export default function App() {
   const [searchTerm, setSearchTerm] = useState('');
-  const { isAuthenticated } = useAuth0();
+  const { isAuthenticated, user } = useAuth0();
   const [socket, setSocket] = useState(null);
+  const [localUser, setLocalUser] = useState({});
 
   useEffect(() => {
     const newSocket = io.connect(`${import.meta.env.VITE_APP_SOCKET_BASE_URL}`);
     setSocket(newSocket);
     return () => newSocket.close();
   }, []);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await axios.post(
+          `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/getUser`,
+          { email: user.email },
+        );
+        console.log('res', res.data);
+        setLocalUser(res.data);
+      } catch (error) {
+        console.log('error in getting user', error);
+      }
+    };
+    if (user) {
+      fetchUser();
+    }
+  }, [user]);
 
   if (isAuthenticated) {
     return (
@@ -39,7 +59,10 @@ export default function App() {
             <Route path="/make-post" element={<MakePost />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/profile/:id" element={<PublicProfile />} />
-            <Route path="/messages" element={<Messages socket={socket} />} />
+            <Route
+              path="/messages"
+              element={<Messages socket={socket} localUser={localUser} />}
+            />
             <Route path="/item/:id" element={<ItemPage />} />
             <Route path="/my-posts" element={<MyPosts />} />
             <Route path="/edit-post/:postID" element={<EditPost />} />

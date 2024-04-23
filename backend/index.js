@@ -2,11 +2,7 @@ const express = require('express');
 const dotenv = require('dotenv').config();
 const io = require('socket.io')(5002, {
   cors: {
-    // origin: [`${process.env.VITE_BASE_URL}`],
-    // origin: 'http://localhost:5173/messages',
-    // origin: ['http://localhost:5173'],
     origin: [`${process.env.VITE_BASE_URL}`],
-    // methods: ["GET", "POST"]
   },
 });
 let users = [];

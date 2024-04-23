@@ -3,6 +3,8 @@ import Navbar from '../components/Navbar';
 import { Button } from '@mantine/core';
 import PropTypes from 'prop-types';
 import SendIcon from '../assets/icons/SendIcon';
+import axios from 'axios';
+import { useAuth0 } from '@auth0/auth0-react';
 
 Messages.propTypes = {
   socket: PropTypes.shape({
@@ -11,10 +13,14 @@ Messages.propTypes = {
     off: PropTypes.func,
   }),
 };
-export default function Messages({ socket }) {
+export default function Messages({ socket, localUser }) {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
   const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   useEffect(() => {
     if (!socket) return;
@@ -25,8 +31,13 @@ export default function Messages({ socket }) {
 
   const sendMessage = async () => {
     if (message !== '' && socket) {
-      await socket.emit('chat message', message);
-      setMessages((messages) => [...messages, message]);
+      const messageWithName = {
+        text: message,
+        name: localUser && localUser.name,
+      };
+      console.log('messageWithName', messageWithName);
+      await socket.emit('chat message', messageWithName);
+      setMessages((messages) => [...messages, messageWithName]);
       setMessage('');
     }
   };
@@ -39,10 +50,12 @@ export default function Messages({ socket }) {
           {messages.map((msg, index) => (
             <div
               key={index}
-              className="p-2 m-3 bg-blue-300 rounded-lg "
+              className={`p-2 m-3 ${
+                localUser.name === msg.name ? `bg-blue-300` : 'bg-gray-300'
+              } rounded-lg overflow-auto`}
               ref={messagesEndRef}
             >
-              {msg}
+              {msg.name}: {msg.text}
             </div>
           ))}
         </div>
