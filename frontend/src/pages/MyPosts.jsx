@@ -7,7 +7,6 @@ import { Image } from '@mantine/core';
 import { Button } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 
-
 export default function MyPosts() {
   const { user } = useAuth0();
   const [posts, setPosts] = useState([]);
@@ -17,8 +16,8 @@ export default function MyPosts() {
   const [UandP, setUnP] = useState({
     userid: '',
     postid: '',
-  })
-  
+  });
+
   // const edit_post = async (html_image) => {
   //   const id = html_image.getElementAttribute('id')
 
@@ -37,13 +36,14 @@ export default function MyPosts() {
         );
         setCurrUser(userRes.data);
         const postsRes = await axios.get(
-          `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/user/get-posts/${userRes.data.id}`,);
-        
-          
-        console.log(postsRes.data)
+          `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/user/get-posts/${
+            userRes.data.id
+          }`,
+        );
+
+        console.log(postsRes.data);
         setUserID(userRes.data.id);
         setPosts(postsRes.data.posts);
-       
       } catch (error) {
         console.log('error in getUser', error);
       }
@@ -51,46 +51,38 @@ export default function MyPosts() {
     getUserAndPosts();
   }, []);
 
-  const handleRemove = async (index) =>
-  {
-    console.log("uid: ", userID, "pid:", index)
+  const handleRemove = async (index) => {
+    console.log('uid: ', userID, 'pid:', index);
     setPostID(index);
 
-    setUnP({userid: userID, postid: index})
-    try 
-    {
-      
-      
-      console.log("uid: ", userID, "pid:", index)
-      const removePostResponse = await axios.post(`${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/user/remove-post/`, {userId: userID, postId: index});
-    } catch(error)
-    {
+    setUnP({ userid: userID, postid: index });
+    try {
+      console.log('uid: ', userID, 'pid:', index);
+      const removePostResponse = await axios.post(
+        `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/user/remove-post/`,
+        { userId: userID, postId: index },
+      );
+    } catch (error) {
       console.error(error);
     }
-  }
-
+  };
 
   return (
     <div>
       <Navbar />
-      <div className="grid grid-cols-1 p-5 gap-10" >
+      <div className="grid grid-cols-1 p-5 gap-10">
         {posts.length > 0 ? (
           posts.map((post) => (
             <div
-            
               key={post.id}
               className="rounded shadow-lg p-6 bg-orange-200 flex"
-              
             >
-              <Carousel withIndicators loop
-              style={{height:250, width:250}}
-              > 
+              <Carousel withIndicators loop style={{ height: 250, width: 250 }}>
                 {post.photos.map((photo) => (
-                  <Carousel.Slide 
-                  key={photo} 
-                  //style={{height:250, width:250}}
-                  //style={{height:250, width:250}}
-                  
+                  <Carousel.Slide
+                    key={photo}
+                    //style={{height:250, width:250}}
+                    //style={{height:250, width:250}}
                   >
                     <Image
                       id={`${post.id}`}
@@ -98,66 +90,64 @@ export default function MyPosts() {
                         import.meta.env.VITE_APP_EXPRESS_BASE_URL
                       }/${photo}`}
                       alt={post.title}
-                      style={{height:250, width:250}}
+                      style={{ height: 250, width: 250 }}
                     />
                   </Carousel.Slide>
                 ))}
               </Carousel>
               <div className="px-6 py-0">
-                  <div className=" font-bold p-1 justify-left flex text-xl mb-2">
-                    {post.title}
-                  </div>
-                  
-                  <div className="text-black-700 p-1  justify-left flex text-base text-xl">
-                    ${Number(post.price).toLocaleString('en-US')}
-                  </div>
+                <div className=" font-bold p-1 justify-left flex text-xl mb-2">
+                  {post.title}
+                </div>
 
-                  <p className="text-gray-800 text-base flex justify-left mt-2 p-1">
-                    {post.desc}
-                  </p>
+                <div className="text-black-700 p-1  justify-left flex text-base text-xl">
+                  ${Number(post.price).toLocaleString('en-US')}
+                </div>
 
-                  <div 
-                    
-                    style={{
-                      flexDirection: 'row',
-                      
-                    }}>
-                      <a
-                      href={`http://localhost:5173/edit-post/${post.id}`}>
-                        <button 
-                        style={{
-                          width:75,
-                          backgroundColor: "darkorange",
-                          height:30,
-                          borderRadius:5,
-                          marginTop:100,
-                          
-                        }}>
-                          Edit
-                        </button>
-                      </a>
+                <p className="text-gray-800 text-base flex justify-left mt-2 p-1">
+                  {post.desc}
+                </p>
 
-                      <a
-                      onClick={() => handleRemove(post.id)}
-                      href={`http://localhost:5173/my-posts`}>
-                        <button 
-                        
-                        style={{
-                          width:75,
-                          backgroundColor: "darkorange",
-                          height:30,
-                          borderRadius:5,
-                          marginHorizontal:6,
-                          marginTop:100,
-                          marginLeft:10,
-                        }}>
-                          Remove
-                        </button>
-                      </a>
-                  </div>
+                <div
+                  style={{
+                    flexDirection: 'row',
+                  }}
+                >
+                  <a href={`http://localhost:5173/edit-post/${post.id}`}>
+                    <button
+                      style={{
+                        width: 75,
+                        backgroundColor: 'darkorange',
+                        height: 30,
+                        borderRadius: 5,
+                        marginTop: 100,
+                      }}
+                    >
+                      Edit
+                    </button>
+                  </a>
+
+                  <a
+                    onClick={() => handleRemove(post.id)}
+                    href={`http://localhost:5173/my-posts`}
+                  >
+                    <button
+                      style={{
+                        width: 75,
+                        backgroundColor: 'darkorange',
+                        height: 30,
+                        borderRadius: 5,
+                        marginHorizontal: 6,
+                        marginTop: 100,
+                        marginLeft: 10,
+                      }}
+                    >
+                      Remove
+                    </button>
+                  </a>
+                </div>
               </div>
             </div>
-            
           ))
         ) : (
           <div className="flex items-center h-screen w-screen justify-center">

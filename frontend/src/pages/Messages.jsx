@@ -13,10 +13,12 @@ Messages.propTypes = {
     off: PropTypes.func,
   }),
 };
-export default function Messages({ socket, localUser }) {
+export default function Messages({ socket }) {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
   const messagesEndRef = useRef(null);
+  const [localUser, setLocalUser] = useState({});
+  const { user } = useAuth0();
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -28,6 +30,24 @@ export default function Messages({ socket, localUser }) {
       setMessages((list) => [...list, data]);
     });
   }, [socket]);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await axios.post(
+          `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/getUser`,
+          { email: user.email },
+        );
+        console.log('res', res.data);
+        setLocalUser(res.data);
+      } catch (error) {
+        console.log('error in getting user', error);
+      }
+    };
+    if (user) {
+      fetchUser();
+    }
+  }, []);
 
   const sendMessage = async () => {
     if (message !== '' && socket) {
