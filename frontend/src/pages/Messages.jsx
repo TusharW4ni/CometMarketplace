@@ -62,15 +62,10 @@ export default function Messages({ socket, localUser }) {
               } rounded-lg`}
               ref={messagesEndRef}
             >
-              {/* {msg.name}: {msg.text}
-              <span className="text-sm text-gray-500 flex justify-end">
-                {msg.time}
-              </span> */}
+              <div className="text-sm text-gray-500">{msg.name}</div>
               <div className="flex justify-between items-center">
-                <span className="overflow-auto">
-                  {msg.name}: {msg.text}
-                </span>
-                <span className="text-sm text-gray-500 w-1/4 flex justify-end">
+                <span className="overflow-auto">{msg.text}</span>
+                <span className="text-sm text-gray-500 w-1/4 flex-none text-right ml-2">
                   {msg.time}
                 </span>
               </div>
