@@ -289,6 +289,11 @@ export function MyPosts() {
             key={post.id}
             className="rounded overflow-hidden shadow-lg p-6 bg-orange-200"
           >
+            {/* {editClicked ? (
+              <div className="fixed z-10 bg-white m-2 p-2 rounded-full hover:cursor-pointer ">
+                <EditIcon />
+              </div>
+            ) : null} */}
             <Carousel withIndicators loop>
               {post.photos.map((photo) => (
                 <Carousel.Slide key={photo}>
