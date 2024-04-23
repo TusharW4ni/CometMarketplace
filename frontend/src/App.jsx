@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Home from './pages/Home';
 import MakePost from './pages/MakePost';
 import Profile from './pages/Profile';
@@ -20,7 +20,13 @@ import { SearchContext } from './SearchContext';
 export default function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const { isAuthenticated } = useAuth0();
-  const socket = io.connect(`${import.meta.env.VITE_APP_SOCKET_BASE_URL}`);
+  const [socket, setSocket] = useState(null);
+
+  useEffect(() => {
+    const newSocket = io.connect(`${import.meta.env.VITE_APP_SOCKET_BASE_URL}`);
+    setSocket(newSocket);
+    return () => newSocket.close();
+  }, []);
 
   if (isAuthenticated) {
     return (
