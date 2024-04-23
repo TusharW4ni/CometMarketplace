@@ -34,6 +34,13 @@ export default function Messages({ socket, localUser }) {
       const messageWithName = {
         text: message,
         name: localUser && localUser.name,
+        time: new Date()
+          .toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true,
+          })
+          .toUpperCase(),
       };
       console.log('messageWithName', messageWithName);
       await socket.emit('chat message', messageWithName);
@@ -52,10 +59,21 @@ export default function Messages({ socket, localUser }) {
               key={index}
               className={`p-2 m-3 ${
                 localUser.name === msg.name ? `bg-blue-300` : 'bg-gray-300'
-              } rounded-lg overflow-auto`}
+              } rounded-lg`}
               ref={messagesEndRef}
             >
-              {msg.name}: {msg.text}
+              {/* {msg.name}: {msg.text}
+              <span className="text-sm text-gray-500 flex justify-end">
+                {msg.time}
+              </span> */}
+              <div className="flex justify-between items-center">
+                <span className="overflow-auto">
+                  {msg.name}: {msg.text}
+                </span>
+                <span className="text-sm text-gray-500 w-1/4 flex justify-end">
+                  {msg.time}
+                </span>
+              </div>
             </div>
           ))}
         </div>

@@ -125,7 +125,7 @@ export function UpdateProfile({ refresh, setRefresh }) {
           </p>
         </div>
       )}
-      <div className="flex flex-col bg-gray-200 w-1/3 h-3/4 space-y-10 justify-center items-center p-10 rounded-lg border-4 border-orange-500">
+      <div className="flex flex-col bg-gray-200 w-1/3 h-3/4 space-y-10 justify-center items-center p-10 rounded-lg border-4 border-orange-500 overflow-auto">
         {/* profile picture */}
         <div
           onClick={() => {
