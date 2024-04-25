@@ -38,7 +38,7 @@ export default function Messages({ socket }) {
           `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/getUser`,
           { email: user.email },
         );
-        console.log('res', res.data);
+        // console.log('res', res.data);
         setLocalUser(res.data);
       } catch (error) {
         console.log('error in getting user', error);
@@ -72,7 +72,9 @@ export default function Messages({ socket }) {
   return (
     <>
       <Navbar />
-      <div className="flex flex-col h-1/2 p-16 h-screen justify-center items-center">
+      <div className="fixed pt-14 w-1/6 h-screen bg-emerald-700">adfad</div>
+      <div className="flex flex-col h-1/2 pt-16 h-screen justify-center items-center">
+        {/* <div> */}
         <div className="relative bg-white w-1/2 h-3/4 rounded-t-lg overflow-y-auto">
           {messages.map((msg, index) => (
             <div
@@ -116,6 +118,7 @@ export default function Messages({ socket }) {
             </div>
           </form>
         </div>
+        {/* </div> */}
       </div>
     </>
   );

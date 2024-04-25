@@ -130,7 +130,7 @@ export default function Home() {
               </div>
             ))
           ) : (
-            <div className="flex items-center h-screen w-screen justify-center">
+            <div className="">
               <h1 className="text-2xl text-white">No posts available</h1>
             </div>
           )}

@@ -7,6 +7,11 @@ generator client {
   provider = "prisma-client-js"
 }
 
+enum Status {
+  ONLINE
+  OFFLINE
+}
+
 model User {
   id             Int        @id @default(autoincrement())
   email          String     @unique
@@ -18,6 +23,8 @@ model User {
   Reviews        Review[]
   WishList       WishList[]
   Report         Report[]
+  status         Status     @default(OFFLINE)
+  socketId       String?    @unique
   archived       Boolean    @default(false)
 }
 
@@ -36,11 +43,11 @@ model Post {
 }
 
 model Review {
-  id      Int     @id @default(autoincrement())
-  comment String?
-  rating  Int?
-  User    User    @relation(fields: [userId], references: [id])
-  userId  Int
+  id        Int      @id @default(autoincrement())
+  comment   String?
+  rating    Int?
+  User      User     @relation(fields: [userId], references: [id])
+  userId    Int
   createdAt DateTime @default(now())
 }
 
