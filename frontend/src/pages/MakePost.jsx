@@ -36,6 +36,10 @@ export default function MakePost() {
     console.log('this is the MakePost formData', formData);
   }, [formData]);
 
+  useEffect(() => {
+    console.log(files)
+  }, [files])
+
   const handleFileChange = (event) => {
     const uploadedFiles = Array.from(event.target.files);
     setFiles(uploadedFiles);
@@ -74,6 +78,8 @@ export default function MakePost() {
 
     setPrice(formattedValue);
   };
+
+
 
   const handleSubmit = async () => {
     if (formData.title === '' || formData.price === 0 || formData.desc === '') {

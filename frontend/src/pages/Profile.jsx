@@ -7,6 +7,9 @@ import {
   Textarea,
   Image,
   ActionIcon,
+  Menu,
+  rem,
+  Modal,
 } from '@mantine/core';
 import { useState, useEffect, useRef } from 'react';
 import { User, useAuth0 } from '@auth0/auth0-react';
@@ -19,8 +22,12 @@ import TrashIcon from '../assets/icons/TrashIcon';
 import EditIcon from '../assets/icons/EditIcon';
 import CheckIcon from '../assets/icons/CheckIcon';
 import CrossIcon from '../assets/icons/CrossIcon';
-import { useHover } from '@mantine/hooks';
+import { useHover, useDisclosure } from '@mantine/hooks';
 import BookmarkFilledIcon from '../assets/icons/BookmarkFilledIcon';
+import MenuIcon from '../assets/icons/MenuIcon';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export function UpdateProfile({ refresh, setRefresh }) {
   const { hovered, ref } = useHover();
@@ -211,6 +218,7 @@ export function UpdateProfile({ refresh, setRefresh }) {
 }
 
 export function MyPosts() {
+  const [opened, { open, close }] = useDisclosure(false);
   const navigate = useNavigate();
   const [myPosts, setMyPosts] = useState([]);
   const [editClicked, setEditClicked] = useState(false);
@@ -229,6 +237,9 @@ export function MyPosts() {
   const [refresh, setRefresh] = useState(0);
   const { user } = useAuth0();
   const [localUser, setLocalUser] = useState(null);
+  const [selectedPost, setSelectedPost] = useState({});
+  const [price, setPrice] = useState(0);
+  const [tempPhotos, setTempPhotos] = useState([]);
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -268,181 +279,357 @@ export function MyPosts() {
   }, [localUser, refresh]);
 
   useEffect(() => {
-    const postToEdit = myPosts.find((post) => post.id === whoClickedEdit);
-    if (postToEdit) {
-      setEditFormData({
-        title: postToEdit.title,
-        desc: postToEdit.desc,
-        price: postToEdit.price,
+    console.log(tempPhotos);
+  }, [tempPhotos]);
+
+  useEffect(() => {
+    setTempPhotos(selectedPost.photos);
+  }, [selectedPost.photos, opened]);
+
+  // useEffect(() => {
+  //   const postToEdit = myPosts.find((post) => post.id === whoClickedEdit);
+  //   if (postToEdit) {
+  //     setEditFormData({
+  //       title: postToEdit.title,
+  //       desc: postToEdit.desc,
+  //       price: postToEdit.price,
+  //     });
+  //     setDefaultFormData({
+  //       title: postToEdit.title,
+  //       desc: postToEdit.desc,
+  //       price: postToEdit.price,
+  //     });
+  //   }
+  // }, [whoClickedEdit]);
+
+  const handlePriceChange = (event) => {
+    // Remove all non-digit characters
+    let rawValue = event.target.value.replace(/\D/g, '');
+
+    if (rawValue !== '' ? rawValue > 100000 : false) {
+      toast.error('Price cannot exceed $100,000', {
+        position: 'top-center',
       });
-      setDefaultFormData({
-        title: postToEdit.title,
-        desc: postToEdit.desc,
-        price: postToEdit.price,
+      rawValue = '100000';
+    }
+
+    setEditFormData({ ...editFormData, price: rawValue });
+
+    // Convert to a number and format with commas
+    const formattedValue =
+      rawValue !== '' ? Number(rawValue).toLocaleString('en-US') : '';
+
+    setPrice(formattedValue);
+  };
+
+  const handleSubmit = () => {
+    if (
+      editFormData.desc === '' ||
+      editFormData.price === '' ||
+      editFormData.title === ''
+    ) {
+      toast.error('Please fill out all fields', {
+        position: 'top-center',
       });
     }
-  }, [whoClickedEdit]);
+  };
+
+  const handleRemovePhoto = (index) => {
+    setTempPhotos(tempPhotos.filter((_, i) => i !== index));
+  };
+
+  const handleFileChange = (event) => {
+    const uploadedFiles = Array.from(event.target.files);
+    setFiles((prevFiles) => [...prevFiles, uploadedFiles]);
+
+    // Create URLs representing the files
+    const urls = uploadedFiles.map((file) => URL.createObjectURL(file));
+    setPreviewUrls(urls);
+  };
 
   return (
-    <div className="grid grid-cols-1 p-5 md:grid-cols-2 lg:grid-cols-3 gap-10 pt-20 pl-36">
-      {myPosts && myPosts.length > 0 ? (
-        myPosts.map((post) => (
-          <div
-            key={post.id}
-            className="rounded overflow-hidden shadow-lg p-6 bg-orange-200"
-          >
-            {/* {editClicked ? (
-              <div className="fixed z-10 bg-white m-2 p-2 rounded-full hover:cursor-pointer ">
-                <EditIcon />
-              </div>
-            ) : null} */}
-            <Carousel withIndicators loop>
-              {post.photos.map((photo) => (
-                <Carousel.Slide key={photo}>
-                  <Image
-                    src={`${
-                      import.meta.env.VITE_APP_EXPRESS_BASE_URL
-                    }/${photo}`}
-                    alt={post.title}
-                  />
-                </Carousel.Slide>
-              ))}
-            </Carousel>
-            <div className="px-6 py-4">
-              <div className="flex space-x-5">
-                {
-                  <div
-                    className=" flex-grow font-bold bg-orange-500 p-1 rounded-full justify-center flex text-xl mb-2 hover:cursor-pointer hover:text-blue-300 hover:underline"
-                    onClick={() => {
-                      if (!editClicked || whoClickedEdit !== post.id) {
-                        navigate(`/item/${post.id}`);
+    <>
+      <ToastContainer />
+      <Modal
+        opened={opened}
+        onClose={() => {
+          close();
+          setTempPhotos([]);
+        }}
+        size="auto"
+        centered
+        title="Edit Post"
+      >
+        <div className="flex space-x-10">
+          <div className="flex flex-col">
+            <div>
+              <Button component="label" htmlFor="fileUpload">
+                Upload Photos
+              </Button>
+              <input
+                id="fileUpload"
+                type="file"
+                onChange={handleFileChange}
+                style={{ display: 'none' }}
+                multiple
+              />
+            </div>
+            <div className="mt-5 grid grid-cols-3 gap-4">
+              {tempPhotos &&
+                tempPhotos.map((photo, index) => {
+                  const photoUrl = `${
+                    import.meta.env.VITE_APP_EXPRESS_BASE_URL
+                  }/${photo}`;
+                  return (
+                    <div key={index} className="relative">
+                      <img src={photoUrl} alt="Post" width={100} />
+
+                      <button
+                        className="absolute top-0 right-0 bg-gray-500 hover:bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                        onClick={() => handleRemovePhoto(index)}
+                      >
+                        X
+                      </button>
+                    </div>
+                  );
+                })}
+            </div>
+          </div>
+          <div className="flex flex-col space-y-2">
+            <label htmlFor="title" className="">
+              Title
+            </label>
+            <input
+              type="text"
+              className="w-96 px-3 py-2 border border-gray-300 rounded-md hover:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              onChange={(e) =>
+                setEditFormData({ ...editFormData, title: e.target.value })
+              }
+              value={editFormData.title}
+            />
+            <label htmlFor="price" className="">
+              Price
+            </label>
+            <input
+              type="text"
+              value={`$ ${price}`}
+              onChange={handlePriceChange}
+              className="w-96 px-3 py-2 border border-gray-300 rounded-md hover:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+            />
+            <label htmlFor="description" className="">
+              Description
+            </label>
+            <textarea
+              className="w-96 px-3 py-2 border border-gray-300 rounded-md hover:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              value={editFormData.desc}
+              onChange={(e) =>
+                setEditFormData({ ...editFormData, desc: e.target.value })
+              }
+            />
+            <Button color="orange" onClick={handleSubmit}>
+              Update
+            </Button>
+          </div>
+        </div>
+      </Modal>
+      <div className="grid grid-cols-1 p-5 md:grid-cols-2 lg:grid-cols-3 gap-10 pt-20 pl-36">
+        {myPosts && myPosts.length > 0 ? (
+          myPosts.map((post) => (
+            <div
+              key={post.id}
+              className="rounded overflow-hidden shadow-lg p-6 bg-orange-200 relative"
+            >
+              <div className="mb-1">
+                <Menu>
+                  <Menu.Target>
+                    <ActionIcon variant="transparent" color="black">
+                      <MenuIcon />
+                    </ActionIcon>
+                  </Menu.Target>
+
+                  <Menu.Dropdown>
+                    <Menu.Item
+                      leftSection={
+                        <IconEdit style={{ width: rem(14), height: rem(14) }} />
                       }
-                    }}
-                  >
+                      onClick={() => {
+                        open();
+                        const foundPost = myPosts.find((p) => p.id === post.id);
+                        setSelectedPost(foundPost);
+                        setEditFormData({
+                          title: foundPost.title,
+                          desc: foundPost.desc,
+                          price: foundPost.price,
+                        });
+                        setPrice(foundPost.price.toLocaleString('en-US'));
+                      }}
+                    >
+                      Edit
+                    </Menu.Item>
+                    <Menu.Item
+                      leftSection={
+                        <IconTrash
+                          style={{ width: rem(14), height: rem(14) }}
+                        />
+                      }
+                      onClick={() => {}}
+                    >
+                      Delete
+                    </Menu.Item>
+                  </Menu.Dropdown>
+                </Menu>
+              </div>
+              <Carousel withIndicators loop>
+                {post.photos.map((photo) => (
+                  <Carousel.Slide key={photo}>
+                    <Image
+                      src={`${
+                        import.meta.env.VITE_APP_EXPRESS_BASE_URL
+                      }/${photo}`}
+                      alt={post.title}
+                    />
+                  </Carousel.Slide>
+                ))}
+              </Carousel>
+              <div className="px-6 py-4">
+                <div className="flex space-x-5">
+                  {
+                    <div
+                      className=" flex-grow font-bold bg-orange-500 p-1 rounded-full justify-center flex text-xl mb-2 hover:cursor-pointer hover:text-blue-300 hover:underline"
+                      onClick={() => {
+                        if (!editClicked || whoClickedEdit !== post.id) {
+                          navigate(`/item/${post.id}`);
+                        }
+                      }}
+                    >
+                      {editClicked && whoClickedEdit === post.id ? (
+                        <div>
+                          <TextInput
+                            size="sm"
+                            value={editFormData.title}
+                            onChange={(event) => {
+                              setEditFormData({
+                                ...editFormData,
+                                title: event.currentTarget.value,
+                              });
+                            }}
+                          />
+                        </div>
+                      ) : (
+                        post.title
+                      )}
+                    </div>
+                  }
+                  <div className="  items-center text-gray-700 bg-orange-300 rounded-full justify-center flex p-2">
                     {editClicked && whoClickedEdit === post.id ? (
                       <div>
                         <TextInput
                           size="sm"
-                          value={editFormData.title}
+                          value={editFormData.price}
                           onChange={(event) => {
                             setEditFormData({
                               ...editFormData,
-                              title: event.currentTarget.value,
+                              price: event.currentTarget.value,
                             });
                           }}
                         />
                       </div>
                     ) : (
-                      post.title
+                      <>${Number(post.price).toLocaleString('en-US')}</>
                     )}
                   </div>
-                }
-                <div className="  items-center text-gray-700 bg-orange-300 rounded-full justify-center flex p-2">
+                </div>
+                <div className="text-gray-700 text-base flex justify-center mt-2 bg-orange-300 p-2 rounded-lg">
                   {editClicked && whoClickedEdit === post.id ? (
                     <div>
-                      <TextInput
+                      <Textarea
                         size="sm"
-                        value={editFormData.price}
+                        value={editFormData.desc}
+                        resize="vertical"
                         onChange={(event) => {
                           setEditFormData({
                             ...editFormData,
-                            price: event.currentTarget.value,
+                            desc: event.currentTarget.value,
                           });
                         }}
                       />
                     </div>
                   ) : (
-                    <>${Number(post.price).toLocaleString('en-US')}</>
+                    post.desc
                   )}
                 </div>
               </div>
-              <div className="text-gray-700 text-base flex justify-center mt-2 bg-orange-300 p-2 rounded-lg">
-                {editClicked && whoClickedEdit === post.id ? (
-                  <div>
-                    <Textarea
-                      size="sm"
-                      value={editFormData.desc}
-                      resize="vertical"
-                      onChange={(event) => {
-                        setEditFormData({
-                          ...editFormData,
-                          desc: event.currentTarget.value,
-                        });
-                      }}
-                    />
-                  </div>
-                ) : (
-                  post.desc
-                )}
-              </div>
-            </div>
-            <div className="flex justify-between w-full ">
-              <Button
-                color="red"
-                onClick={() => {
-                  axios.patch(
-                    `${
-                      import.meta.env.VITE_APP_EXPRESS_BASE_URL
-                    }/api/post/archivePost`,
-                    { postId: post.id },
-                  );
-                  setRefresh(refresh + 1);
-                }}
-              >
-                <TrashIcon />
-              </Button>
-              {editClicked && whoClickedEdit === post.id ? (
+              <div></div>
+              {/* <div className="absolute bottom-0 left-0 right-0 flex justify-between w-full p-4">
+              <div className="flex justify-between w-full">
                 <Button
-                  color="blue"
+                  color="red"
                   onClick={() => {
-                    setEditClicked(false);
-                    setWhoClickedEdit(0);
-                    setEditFormData(defaultFormData);
-                  }}
-                >
-                  <CrossIcon />
-                </Button>
-              ) : null}
-              <Button
-                color="green"
-                onClick={async () => {
-                  if (!editClicked) {
-                    setEditClicked(true);
-                    setWhoClickedEdit(post.id);
-                  } else {
-                    await axios.patch(
+                    axios.patch(
                       `${
                         import.meta.env.VITE_APP_EXPRESS_BASE_URL
-                      }/api/post/updatePost`,
-                      {
-                        postId: post.id,
-                        title: editFormData.title,
-                        desc: editFormData.desc,
-                        price: editFormData.price,
-                      },
+                      }/api/post/archivePost`,
+                      { postId: post.id },
                     );
                     setRefresh(refresh + 1);
-                    setEditClicked(false);
-                    setWhoClickedEdit(0);
-                    setEditFormData(defaultFormData);
-                  }
-                }}
-              >
+                  }}
+                >
+                  <TrashIcon />
+                </Button>
                 {editClicked && whoClickedEdit === post.id ? (
-                  <CheckIcon />
-                ) : (
-                  <EditIcon />
-                )}
-              </Button>
+                  <Button
+                    color="blue"
+                    onClick={() => {
+                      setEditClicked(false);
+                      setWhoClickedEdit(0);
+                      setEditFormData(defaultFormData);
+                    }}
+                  >
+                    <CrossIcon />
+                  </Button>
+                ) : null}
+                <Button
+                  color="green"
+                  onClick={async () => {
+                    if (!editClicked) {
+                      setEditClicked(true);
+                      setWhoClickedEdit(post.id);
+                    } else {
+                      await axios.patch(
+                        `${
+                          import.meta.env.VITE_APP_EXPRESS_BASE_URL
+                        }/api/post/updatePost`,
+                        {
+                          postId: post.id,
+                          title: editFormData.title,
+                          desc: editFormData.desc,
+                          price: editFormData.price,
+                        },
+                      );
+                      setRefresh(refresh + 1);
+                      setEditClicked(false);
+                      setWhoClickedEdit(0);
+                      setEditFormData(defaultFormData);
+                    }
+                  }}
+                >
+                  {editClicked && whoClickedEdit === post.id ? (
+                    <CheckIcon />
+                  ) : (
+                    <EditIcon />
+                  )}
+                </Button>
+              </div>
+            </div> */}
             </div>
+          ))
+        ) : (
+          <div>
+            <h1 className="text-2xl text-white">No posts available</h1>
           </div>
-        ))
-      ) : (
-        <div>
-          <h1 className="text-2xl text-white">No posts available</h1>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </>
   );
 }
 
