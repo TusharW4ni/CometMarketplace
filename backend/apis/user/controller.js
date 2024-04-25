@@ -3,49 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const { PrismaClient } = require('@prisma/client');
-const { get } = require('http');
-const { isObject } = require('util');
 const prisma = new PrismaClient();
-
-//keejun just get post information through postID
-const getPostinfo = async (req, res) => {
-  const { postId } = req.params;
-  console.log(postId);
-  try {
-    const postt = await prisma.post.findUnique({
-      where: { id: parseInt(postId) },
-      include: {
-        user: { select: { email: true } }, // Ensure the email is fetched
-      },
-    });
-
-    if (!postt) {
-      return res.status(404).json({ error: 'Post not found' });
-    }
-
-    const dirr = postt.photosFolder;
-    if (fs.existsSync(dirr)) {
-      postt.photo = fs.readdirSync(dirr).map((file) => `${dirr}/${file}`);
-    } else {
-      postt.photo = [];
-    }
-
-    // Simplify the response by removing the unnecessary nesting
-    const responsePost = {
-      title: postt.title,
-      price: postt.price,
-      description: postt.desc,
-      email: postt.user.email,
-      photo: postt.photo,
-    };
-
-    res.status(200).json(responsePost);
-    console.log(responsePost);
-  } catch (error) {
-    console.error('error in /api/user/get-post/:postId', error);
-    res.status(500).json({ error: error.message });
-  }
-};
 
 const newUser = async (req, res) => {
   const { email } = req.body;
@@ -89,91 +47,6 @@ const newPost = async (req, res) => {
   }
 };
 
-//vincent WIP pray this works
-const editPost = async (req, res) => {
-  console.log('req to edit', req.body);
-
-  const { title, price, desc, userId, postId } = req.body;
-
-  const user = await prisma.user.findUnique({
-    where: { id: parseInt(userId) },
-  });
-  if (!user) {
-    return res.status(404).json({ error: 'User ID not found' });
-  }
-
-  const post = await prisma.post.findUnique({
-    where: { id: parseInt(postId) },
-  });
-  if (!post) {
-    return res.status(404).json({ error: 'Post ID not found' });
-  }
-
-  try {
-    const updatedPost = await prisma.post.update({
-      where: {
-        id: parseInt(postId),
-        userId: parseInt(userId),
-      },
-      data: {
-        title: title,
-        price: parseInt(price),
-        desc: desc,
-        //userId: parseInt(userId),
-        //postId: parseInt(postId),
-      },
-    });
-    return res
-      .status(200)
-      .json({ message: 'post edited', postId: updatedPost.id });
-  } catch (error) {
-    console.log('error in /api/user/edit-post/:postId', error);
-    console.log(error.message);
-    return res.status(500).json({ error: error.message });
-  }
-};
-
-//vincent WIP probably doesnt work
-const removePost = async (req, res) => {
-  console.log('req to remove', req.body);
-  const { userId, postId } = req.body;
-
-  try {
-    console.log('uid: ', userId, 'pid:', postId);
-    const user = await prisma.user.findUnique({
-      where: { id: parseInt(userId) },
-    });
-    if (!user) {
-      return res.status(404).json({ error: 'User ID not found' });
-    }
-
-    const post = await prisma.post.findUnique({
-      where: { id: parseInt(postId) },
-    });
-    if (!post) {
-      return res.status(404).json({ error: 'Post ID not found' }); //404 not found
-    }
-
-    if (post.userId !== user.id) {
-      return res
-        .status(403)
-        .json({ error: 'User does not have permission to remove post' }); //403 no permission to access
-    }
-
-    await prisma.post.delete({
-      where: {
-        userId: parseInt(userId),
-        id: parseInt(postId),
-      },
-    });
-
-    return res.status(200).json({ message: 'post removed' }); //success status 200
-  } catch (error) {
-    console.log('error in /api/user/remove-post/:postId', error);
-    return res.status(500).json({ error: error.message }); //server error encounter
-  }
-};
-
 const storageForPostPictures = multer.diskStorage({
   destination: (req, file, cb) => {
     let dir;
@@ -186,7 +59,15 @@ const storageForPostPictures = multer.diskStorage({
       dir = `uploads/profilePicture/${userId}`;
     }
 
-    if (!fs.existsSync(dir)) {
+    if (fs.existsSync(dir)) {
+      // Get an array of the files in the directory
+      const files = fs.readdirSync(dir);
+
+      // Delete each file
+      for (const file of files) {
+        fs.unlinkSync(path.join(dir, file));
+      }
+    } else {
       fs.mkdirSync(dir, { recursive: true });
     }
     cb(null, dir);
