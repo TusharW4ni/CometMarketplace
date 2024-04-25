@@ -21,6 +21,7 @@ import CheckIcon from '../assets/icons/CheckIcon';
 import CrossIcon from '../assets/icons/CrossIcon';
 import { useHover } from '@mantine/hooks';
 import BookmarkFilledIcon from '../assets/icons/BookmarkFilledIcon';
+import { ToastContainer, toast } from 'react-toastify';
 
 export function UpdateProfile({ refresh, setRefresh }) {
   const { hovered, ref } = useHover();
@@ -36,6 +37,14 @@ export function UpdateProfile({ refresh, setRefresh }) {
     pronouns: '',
     bio: '',
   });
+  const [originalFormData, setOriginalFormData] = useState({
+    profilePicture: auth0ProfilePicture,
+    name: '',
+    email: '',
+    pronouns: '',
+    bio: '',
+  });
+  const [showCancelButton, setShowCancelButton] = useState(false);
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -53,6 +62,13 @@ export function UpdateProfile({ refresh, setRefresh }) {
           bio: response.data.bio,
           profilePicture: response.data.profilePicture || auth0ProfilePicture,
         });
+        setOriginalFormData({
+          name: response.data.name,
+          email: response.data.email,
+          pronouns: response.data.pronouns,
+          bio: response.data.bio,
+          profilePicture: response.data.profilePicture || auth0ProfilePicture,
+        });
       } catch (error) {
         console.error('Failed to fetch user details:', error);
       }
@@ -62,6 +78,14 @@ export function UpdateProfile({ refresh, setRefresh }) {
     }
     setShowConfirmation(false);
   }, [refresh]);
+
+  useEffect(() => {
+    if (JSON.stringify(formData) !== JSON.stringify(originalFormData)) {
+      setShowCancelButton(true);
+    } else {
+      setShowCancelButton(false);
+    }
+  }, [formData]);
 
   const onUpdate = async () => {
     try {
@@ -93,6 +117,9 @@ export function UpdateProfile({ refresh, setRefresh }) {
       }
     }
     setShowConfirmation(true);
+    // toast.success('Profile Updated!', {
+    //   position: 'top-center',
+    // });
     setTimeout(() => {
       setRefresh(refresh + 1);
       setFormData({
@@ -116,102 +143,105 @@ export function UpdateProfile({ refresh, setRefresh }) {
   };
 
   return (
-    <div className="flex flex-col h-screen space-y-10 justify-center items-center">
-      {/* confirmation */}
-      {showConfirmation && (
-        <div>
-          <p className="bg-orange-500 rounded-full text-white p-2 mt-4">
-            Profile Updated!
-          </p>
-        </div>
-      )}
-      <div className="flex flex-col bg-gray-200 w-1/3 h-3/4 space-y-10 justify-center items-center p-10 rounded-lg border-4 border-orange-500 overflow-auto">
-        {/* profile picture */}
-        <div
-          onClick={() => {
-            document.getElementById('imageUpload').click();
-          }}
-        >
-          <div className="relative">
-            <Tooltip label="Change Profile Picture" position="bottom">
-              <Avatar
-                size="xl"
-                className="hover:cursor-pointer hover:border-4 hover:border-orange-500"
-                src={
-                  formData.profilePicture.includes('blob')
-                    ? formData.profilePicture
-                    : formData.profilePicture.includes('gravatar')
-                    ? formData.profilePicture
-                    : formData.profilePicture === undefined
-                    ? auth0ProfilePicture
-                    : `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/${
-                        localUser.profilePictureFile
-                      }`
-                }
-              />
-            </Tooltip>
-            <div className="absolute bottom-0 right-0 rounded-full bg-white p-1 border-2 border-orange-500">
-              <EditIcon />
+    <>
+      <ToastContainer />
+      <div className="flex flex-col h-screen space-y-10 justify-center items-center">
+        {/* confirmation */}
+        {showConfirmation && (
+          <div>
+            <p className="bg-orange-500 rounded-full text-white p-2 mt-4">
+              Profile Updated!
+            </p>
+          </div>
+        )}
+        <div className="flex flex-col bg-gray-200 w-1/3 h-3/4 space-y-10 justify-center items-center p-10 rounded-lg border-4 border-orange-500 overflow-auto">
+          {/* profile picture */}
+          <div
+            onClick={() => {
+              document.getElementById('imageUpload').click();
+            }}
+          >
+            <div className="relative">
+              <Tooltip label="Change Profile Picture" position="bottom">
+                <Avatar
+                  size="xl"
+                  className="hover:cursor-pointer hover:border-4 hover:border-orange-500"
+                  src={
+                    formData.profilePicture.includes('blob')
+                      ? formData.profilePicture
+                      : formData.profilePicture.includes('gravatar')
+                      ? formData.profilePicture
+                      : formData.profilePicture === undefined
+                      ? auth0ProfilePicture
+                      : `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/${
+                          localUser.profilePictureFile
+                        }`
+                  }
+                />
+              </Tooltip>
+              <div className="absolute bottom-0 right-0 rounded-full bg-white p-1 border-2 border-orange-500">
+                <EditIcon />
+              </div>
             </div>
+            <input
+              id="imageUpload"
+              type="file"
+              onChange={handleImgUpload}
+              style={{ display: 'none' }}
+            />
           </div>
-          <input
-            id="imageUpload"
-            type="file"
-            onChange={handleImgUpload}
-            style={{ display: 'none' }}
-          />
+          {/* profile form */}
+          <form
+            className="w-2/4 space-y-5"
+            onSubmit={(event) => {
+              event.preventDefault();
+              onUpdate();
+            }}
+          >
+            <TextInput
+              ref={ref}
+              label="Name"
+              value={formData.name}
+              onChange={(event) =>
+                setFormData({
+                  ...formData,
+                  name: event.currentTarget.value,
+                })
+              }
+            />
+            <Tooltip label="Cannot Change Email" position="left">
+              <TextInput label="Email" disabled value={formData.email} />
+            </Tooltip>
+            <TextInput
+              label="Pronouns"
+              value={formData.pronouns}
+              onChange={(event) =>
+                setFormData({
+                  ...formData,
+                  pronouns: event.currentTarget.value,
+                })
+              }
+            />
+            <Textarea
+              label="Bio"
+              resize="vertical"
+              value={formData.bio}
+              onChange={(event) =>
+                setFormData({
+                  ...formData,
+                  bio: event.currentTarget.value,
+                })
+              }
+            />
+            <div className="flex w-full justify-center">
+              <Button type="submit" color="orange" onClick={onUpdate}>
+                Update
+              </Button>
+            </div>
+          </form>
         </div>
-        {/* profile form */}
-        <form
-          className="w-2/4 space-y-5"
-          onSubmit={(event) => {
-            event.preventDefault();
-            onUpdate();
-          }}
-        >
-          <TextInput
-            ref={ref}
-            label="Name"
-            value={formData.name}
-            onChange={(event) =>
-              setFormData({
-                ...formData,
-                name: event.currentTarget.value,
-              })
-            }
-          />
-          <Tooltip label="Cannot Change Email" position="left">
-            <TextInput label="Email" disabled value={formData.email} />
-          </Tooltip>
-          <TextInput
-            label="Pronouns"
-            value={formData.pronouns}
-            onChange={(event) =>
-              setFormData({
-                ...formData,
-                pronouns: event.currentTarget.value,
-              })
-            }
-          />
-          <Textarea
-            label="Bio"
-            resize="vertical"
-            value={formData.bio}
-            onChange={(event) =>
-              setFormData({
-                ...formData,
-                bio: event.currentTarget.value,
-              })
-            }
-          />
-          <div className="flex w-full justify-center">
-            <Button type="submit" color="orange" onClick={onUpdate}>
-              Update
-            </Button>
-          </div>
-        </form>
       </div>
-    </div>
+    </>
   );
 }
 
