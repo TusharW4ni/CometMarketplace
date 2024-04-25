@@ -132,23 +132,28 @@ export function UpdateProfile({ refresh, setRefresh }) {
             document.getElementById('imageUpload').click();
           }}
         >
-          <Tooltip label="Change Profile Picture" position="bottom">
-            <Avatar
-              size="xl"
-              className="hover:cursor-pointer hover:border-4 hover:border-orange-500"
-              src={
-                formData.profilePicture.includes('blob')
-                  ? formData.profilePicture
-                  : formData.profilePicture.includes('gravatar')
-                  ? formData.profilePicture
-                  : formData.profilePicture === undefined
-                  ? auth0ProfilePicture
-                  : `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/${
-                      localUser.profilePictureFile
-                    }`
-              }
-            />
-          </Tooltip>
+          <div className="relative">
+            <Tooltip label="Change Profile Picture" position="bottom">
+              <Avatar
+                size="xl"
+                className="hover:cursor-pointer hover:border-4 hover:border-orange-500"
+                src={
+                  formData.profilePicture.includes('blob')
+                    ? formData.profilePicture
+                    : formData.profilePicture.includes('gravatar')
+                    ? formData.profilePicture
+                    : formData.profilePicture === undefined
+                    ? auth0ProfilePicture
+                    : `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/${
+                        localUser.profilePictureFile
+                      }`
+                }
+              />
+            </Tooltip>
+            <div className="absolute bottom-0 right-0 rounded-full bg-white p-1 border-2 border-orange-500">
+              <EditIcon />
+            </div>
+          </div>
           <input
             id="imageUpload"
             type="file"
