@@ -132,21 +132,23 @@ export function UpdateProfile({ refresh, setRefresh }) {
             document.getElementById('imageUpload').click();
           }}
         >
-          <Avatar
-            size="xl"
-            className="hover:cursor-pointer"
-            src={
-              formData.profilePicture.includes('blob')
-                ? formData.profilePicture
-                : formData.profilePicture.includes('gravatar')
-                ? formData.profilePicture
-                : formData.profilePicture === undefined
-                ? auth0ProfilePicture
-                : `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/${
-                    localUser.profilePictureFile
-                  }`
-            }
-          />
+          <Tooltip label="Change Profile Picture" position="bottom">
+            <Avatar
+              size="xl"
+              className="hover:cursor-pointer hover:border-4 hover:border-orange-500"
+              src={
+                formData.profilePicture.includes('blob')
+                  ? formData.profilePicture
+                  : formData.profilePicture.includes('gravatar')
+                  ? formData.profilePicture
+                  : formData.profilePicture === undefined
+                  ? auth0ProfilePicture
+                  : `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/${
+                      localUser.profilePictureFile
+                    }`
+              }
+            />
+          </Tooltip>
           <input
             id="imageUpload"
             type="file"
@@ -513,16 +515,17 @@ export function WishList({ refresh, setRefresh }) {
             className="rounded overflow-hidden shadow-lg p-6 bg-orange-200"
           >
             <Carousel withIndicators loop>
-              {post.post.photos.map((photo) => (
-                <Carousel.Slide key={photo}>
-                  <Image
-                    src={`${
-                      import.meta.env.VITE_APP_EXPRESS_BASE_URL
-                    }/${photo}`}
-                    alt={post.post.title}
-                  />
-                </Carousel.Slide>
-              ))}
+              {post.post.photos &&
+                post.post.photos.map((photo) => (
+                  <Carousel.Slide key={photo}>
+                    <Image
+                      src={`${
+                        import.meta.env.VITE_APP_EXPRESS_BASE_URL
+                      }/${photo}`}
+                      alt={post.post.title}
+                    />
+                  </Carousel.Slide>
+                ))}
             </Carousel>
             <div className="px-6 py-4">
               <div className="flex space-x-5">

@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import FormData from 'form-data';
 import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function MakePost() {
   const [currUser, setCurrUser] = useState(null);
@@ -30,6 +32,10 @@ export default function MakePost() {
     fetchUser();
   }, []);
 
+  useEffect(() => {
+    console.log('this is the MakePost formData', formData);
+  }, [formData]);
+
   const handleFileChange = (event) => {
     const uploadedFiles = Array.from(event.target.files);
     setFiles(uploadedFiles);
@@ -51,16 +57,31 @@ export default function MakePost() {
 
   const handlePriceChange = (event) => {
     // Remove all non-digit characters
-    const rawValue = event.target.value.replace(/\D/g, '');
+    let rawValue = event.target.value.replace(/\D/g, '');
+
+    if (rawValue !== '' ? rawValue > 100000 : false) {
+      toast.error('Price cannot exceed $100,000', {
+        position: 'top-center',
+      });
+      rawValue = '100000';
+    }
+
     setFormData({ ...formData, price: rawValue });
 
     // Convert to a number and format with commas
-    const formattedValue = Number(rawValue).toLocaleString('en-US');
+    const formattedValue =
+      rawValue !== '' ? Number(rawValue).toLocaleString('en-US') : '';
 
     setPrice(formattedValue);
   };
 
   const handleSubmit = async () => {
+    if (formData.title === '' || formData.price === 0 || formData.desc === '') {
+      toast.error('Please fill out all fields', {
+        position: 'top-center',
+      });
+      return;
+    }
     let newPostId;
     try {
       const res1 = await axios.post(
@@ -76,7 +97,7 @@ export default function MakePost() {
     files.forEach((file) => {
       formDataObj.append('files', file);
     });
-    console.log("this is the fileDataObj from handleSumbit", formDataObj)
+    console.log('this is the fileDataObj from handleSumbit', formDataObj);
     try {
       await axios.post(
         `${
@@ -106,6 +127,7 @@ export default function MakePost() {
   return (
     <>
       <Navbar />
+      <ToastContainer />
       {isPosted && (
         <div className="mt-16 text-center py-4 lg:px-4">
           <div
@@ -167,7 +189,7 @@ export default function MakePost() {
 
               <input
                 type="text"
-                value={`$${price}`}
+                value={`$ ${price}`}
                 onChange={handlePriceChange}
                 className="w-96 px-3 py-2 border border-gray-300 rounded-md hover:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
               />
