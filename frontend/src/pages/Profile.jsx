@@ -233,7 +233,12 @@ export function UpdateProfile({ refresh, setRefresh }) {
                 })
               }
             />
-            <div className="flex w-full justify-center">
+            <div className="flex w-full justify-center space-x-10">
+              {showCancelButton && (
+                <Button color="red" onClick={() => setRefresh(refresh + 1)}>
+                  Cancel
+                </Button>
+              )}
               <Button type="submit" color="orange" onClick={onUpdate}>
                 Update
               </Button>
