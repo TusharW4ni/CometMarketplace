@@ -7,18 +7,21 @@ const prisma = new PrismaClient();
 const io = require('socket.io')(5002, {
   cors: {
     origin: [`${process.env.VITE_BASE_URL}`],
+    methods: ['GET', 'POST'],
   },
 });
 
-let users = [];
+let users = {};
 
 io.on('connection', (socket) => {
-  users.push(socket.id);
-  console.log('users array', users);
+  // users.push(socket.id);
+  // console.log('users array', users);
   console.log('a user connected', socket.id);
 
   socket.on('user_connected', async (userId) => {
     console.log('localUser.id', userId);
+    users[userId] = socket.id;
+    console.log('users object', users);
     await prisma.user.update({
       where: {
         id: userId,
@@ -30,12 +33,29 @@ io.on('connection', (socket) => {
     });
   });
 
-  socket.on('chat message', (msg) => {
-    console.log('message ' + msg);
-    socket.broadcast.emit('chat message', msg); // send to all clients
+  socket.on('chat message', async (msg) => {
+    console.log('message ', msg);
+    // socket.broadcast.emit('chat message', msg);
+    socket.to(users[msg.to.id]).emit('chat message', msg);
+    const from = msg.name === msg.chat.user1.name ? msg.chat.user1.id : msg.chat.user2.id;
+    console.log("from id", from)
+    await prisma.message.create({
+      data: {
+        content: msg.text,
+        chatId: msg.chat.id,
+        senderId: from,
+        createdAt: msg.time,
+      }
+    })
   });
+
   socket.on('disconnect', async () => {
-    await prisma.user.update({
+    const userId = Object.keys(users).find((key) => users[key] === socket.id);
+    if (userId) {
+      delete users[userId];
+    }
+    console.log('users object', users);
+    await prisma.user.updateMany({
       where: {
         socketId: socket.id,
       },
@@ -44,7 +64,6 @@ io.on('connection', (socket) => {
         socketId: null,
       },
     });
-    users = users.filter((user) => user !== socket.id);
     console.log('user disconnected', socket.id);
   });
 });

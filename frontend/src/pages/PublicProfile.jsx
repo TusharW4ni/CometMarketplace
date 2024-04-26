@@ -36,6 +36,8 @@ export default function PublicProfile() {
   const [reviews, setReviews] = useState([]);
   const [refresh, setRefresh] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState(false);
+  const [messageLoading, setMessageLoading] = useState(false);
 
   useEffect(() => {}, []);
 
@@ -82,6 +84,23 @@ export default function PublicProfile() {
     fetchUser().then(() => fetchReviews().then(() => setLoading(false)));
   }, [refresh]);
 
+  useEffect(() => {
+    const getStatus = async () => {
+      try {
+        const res = await axios.get(
+          `${
+            import.meta.env.VITE_APP_EXPRESS_BASE_URL
+          }/api/user/getStatus/${id}`,
+        );
+        console.log('status res.data', res.data);
+        setStatus(res.data.status === 'ONLINE');
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    getStatus();
+  }, []);
+
   const submitReview = async () => {
     try {
       await axios.post(
@@ -93,6 +112,50 @@ export default function PublicProfile() {
         },
       );
       setRefresh(!refresh);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleMessageClick = async () => {
+    setMessageLoading(true);
+    try {
+      const loggedinUser = await axios.post(
+        `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/getUser`,
+        {
+          email: user.email,
+        },
+      );
+      console.log('loggedinUser', loggedinUser.data);
+      const chatlist = await axios.get(
+        `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/user/getChatList/${
+          loggedinUser.data.id
+        }`,
+      );
+      console.log('chatlist', chatlist.data);
+      const chat = chatlist.data.find(
+        (chat) =>
+          (chat.user1Id === parseInt(id) &&
+            chat.user2Id === parseInt(loggedinUser.data.id)) ||
+          (chat.user1Id === parseInt(loggedinUser.data.id) &&
+            chat.user2Id === parseInt(id)),
+      );
+      console.log('after finding chat ');
+      console.log('chat', chat);
+      if (chat) {
+        setMessageLoading(false);
+        navigate(`/messages`);
+      } else {
+        console.log('in chat else block');
+        const newChat = await axios.post(
+          `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/user/createChat/`,
+          {
+            users: [loggedinUser.data.id, id],
+          },
+        );
+        setMessageLoading(false);
+        navigate(`/messages`);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -113,17 +176,26 @@ export default function PublicProfile() {
           )}
         </div>
         <div className="flex items-center space-x-5">
-          <Avatar
-            src={
-              localUser &&
-              `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/${
-                localUser.profilePictureFile
-              }`
-            }
-            size="xl"
-            radius="xl"
-            alt={localUser && localUser.name}
-          />
+          <div className="relative">
+            <Avatar
+              src={
+                localUser &&
+                `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/${
+                  localUser.profilePictureFile
+                }`
+              }
+              size="xl"
+              radius="xl"
+              alt={localUser && localUser.name}
+            />
+            <div
+              className={`absolute bottom-0 right-0 rounded-full px-2 ${
+                status ? 'bg-green-500' : 'bg-gray-300'
+              } border-2 border-white text-gray text-xs`}
+            >
+              *
+            </div>
+          </div>
           <div className="text-4xl">{localUser && localUser.name}</div>
           <div className="text-2xl mt-2 font-mono">
             {localUser && localUser.pronouns}
@@ -136,7 +208,8 @@ export default function PublicProfile() {
             <div className="flex items-center ">
               <Button
                 color="orange"
-                onClick={() => navigate(`/messages`)}
+                onClick={handleMessageClick}
+                loading={messageLoading}
               >
                 Message
               </Button>
@@ -145,7 +218,9 @@ export default function PublicProfile() {
         )}
       </div>
       <div className="overflow-x-auto whitespace-nowrap">
-        <h1 className="text-4xl text-white p-5">{localUser && localUser.name}'s Posts</h1>
+        <h1 className="text-4xl text-white p-5">
+          {localUser && localUser.name}'s Posts
+        </h1>
         <div className="inline-grid grid-cols-1 p-5 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {posts.length > 0 ? (
             posts.map((post) => (

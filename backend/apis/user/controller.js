@@ -879,6 +879,85 @@ const createReport = async (req, res) => {
   }
 };
 
+const getStatus = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: parseInt(id),
+      },
+    });
+    res.status(200).json({ status: user.status });
+  } catch (error) {
+    console.error('Failed to get user status:', error);
+    res.status(500).send({ error: 'Failed to get user status.' });
+  }
+};
+
+const getChatList = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const chats = await prisma.chat.findMany({
+      where: {
+        OR: [
+          {
+            user1Id: parseInt(id),
+          },
+          {
+            user2Id: parseInt(id),
+          },
+        ],
+      },
+      include: {
+        user1: true,
+        user2: true,
+        messages: true,
+      },
+    });
+    res.status(200).json(chats);
+  } catch (error) {
+    console.error('Failed to get chat list:', error);
+    res.status(500).send({ error: 'Failed to get chat list.' });
+  }
+};
+
+const createChat = async (req, res) => {
+  const { users } = req.body;
+  try {
+    const chat = await prisma.chat.create({
+      data: {
+        user1Id: parseInt(users[0]),
+        user2Id: parseInt(users[1]),
+      },
+    });
+    res.status(200).json(chat);
+  } catch (error) {
+    console.error('Failed to create chat:', error);
+    res.status(500).send({ error: 'Failed to create chat.' });
+  }
+};
+
+const getChat = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const chat = await prisma.chat.findUnique({
+      where: {
+        id: parseInt(id),
+      },
+      include: {
+        
+        user1: true,
+        user2: true,
+        messages: true,
+      },
+    });
+    res.status(200).json(chat);
+  } catch (error) {
+    console.error('Failed to get chat:', error);
+    res.status(500).send({ error: 'Failed to get chat.' });
+  }
+};
+
 const addRoutes = (router) => {
   // router.post('/api/user/update-profile/:id', updateUserProfile);
 
@@ -927,6 +1006,11 @@ const addRoutes = (router) => {
   router.post('/api/user/removeFromWishList', removeFromWishList);
   router.get('/api/user/getWishList/:id', getWishList);
   router.post('/api/report/createReport', createReport);
+
+  router.get('/api/user/getStatus/:id', getStatus);
+  router.get('/api/user/getChatList/:id', getChatList);
+  router.post('/api/user/createChat', createChat);
+  router.get('/api/user/getChat/:id', getChat);
 };
 
 module.exports = {
