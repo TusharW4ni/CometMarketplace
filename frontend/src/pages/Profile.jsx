@@ -240,6 +240,8 @@ export function MyPosts() {
   const [selectedPost, setSelectedPost] = useState({});
   const [price, setPrice] = useState(0);
   const [tempPhotos, setTempPhotos] = useState([]);
+  const [files, setFiles] = useState([]);
+  const [previewUrls, setPreviewUrls] = useState([]);
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -286,22 +288,6 @@ export function MyPosts() {
     setTempPhotos(selectedPost.photos);
   }, [selectedPost.photos, opened]);
 
-  // useEffect(() => {
-  //   const postToEdit = myPosts.find((post) => post.id === whoClickedEdit);
-  //   if (postToEdit) {
-  //     setEditFormData({
-  //       title: postToEdit.title,
-  //       desc: postToEdit.desc,
-  //       price: postToEdit.price,
-  //     });
-  //     setDefaultFormData({
-  //       title: postToEdit.title,
-  //       desc: postToEdit.desc,
-  //       price: postToEdit.price,
-  //     });
-  //   }
-  // }, [whoClickedEdit]);
-
   const handlePriceChange = (event) => {
     // Remove all non-digit characters
     let rawValue = event.target.value.replace(/\D/g, '');
@@ -332,10 +318,11 @@ export function MyPosts() {
         position: 'top-center',
       });
     }
+    console.log('editFormData', editFormData);
   };
 
-  const handleRemovePhoto = (index) => {
-    setTempPhotos(tempPhotos.filter((_, i) => i !== index));
+  const handleServerRemovePhoto = (photoUrl) => {
+
   };
 
   const handleFileChange = (event) => {
@@ -386,7 +373,7 @@ export function MyPosts() {
 
                       <button
                         className="absolute top-0 right-0 bg-gray-500 hover:bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
-                        onClick={() => handleRemovePhoto(index)}
+                        onClick={() => handleServerRemovePhoto(photoUrl)}
                       >
                         X
                       </button>
@@ -493,134 +480,23 @@ export function MyPosts() {
               </Carousel>
               <div className="px-6 py-4">
                 <div className="flex space-x-5">
-                  {
-                    <div
-                      className=" flex-grow font-bold bg-orange-500 p-1 rounded-full justify-center flex text-xl mb-2 hover:cursor-pointer hover:text-blue-300 hover:underline"
-                      onClick={() => {
-                        if (!editClicked || whoClickedEdit !== post.id) {
-                          navigate(`/item/${post.id}`);
-                        }
-                      }}
-                    >
-                      {editClicked && whoClickedEdit === post.id ? (
-                        <div>
-                          <TextInput
-                            size="sm"
-                            value={editFormData.title}
-                            onChange={(event) => {
-                              setEditFormData({
-                                ...editFormData,
-                                title: event.currentTarget.value,
-                              });
-                            }}
-                          />
-                        </div>
-                      ) : (
-                        post.title
-                      )}
-                    </div>
-                  }
+                  <div
+                    className=" flex-grow font-bold bg-orange-500 p-1 rounded-full justify-center flex text-xl mb-2 hover:cursor-pointer hover:text-blue-300 hover:underline"
+                    onClick={() => {
+                      navigate(`/item/${post.id}`);
+                    }}
+                  >
+                    {post.title}
+                  </div>
+
                   <div className="  items-center text-gray-700 bg-orange-300 rounded-full justify-center flex p-2">
-                    {editClicked && whoClickedEdit === post.id ? (
-                      <div>
-                        <TextInput
-                          size="sm"
-                          value={editFormData.price}
-                          onChange={(event) => {
-                            setEditFormData({
-                              ...editFormData,
-                              price: event.currentTarget.value,
-                            });
-                          }}
-                        />
-                      </div>
-                    ) : (
-                      <>${Number(post.price).toLocaleString('en-US')}</>
-                    )}
+                    <>${Number(post.price).toLocaleString('en-US')}</>
                   </div>
                 </div>
                 <div className="text-gray-700 text-base flex justify-center mt-2 bg-orange-300 p-2 rounded-lg">
-                  {editClicked && whoClickedEdit === post.id ? (
-                    <div>
-                      <Textarea
-                        size="sm"
-                        value={editFormData.desc}
-                        resize="vertical"
-                        onChange={(event) => {
-                          setEditFormData({
-                            ...editFormData,
-                            desc: event.currentTarget.value,
-                          });
-                        }}
-                      />
-                    </div>
-                  ) : (
-                    post.desc
-                  )}
+                  {post.desc}
                 </div>
               </div>
-              <div></div>
-              {/* <div className="absolute bottom-0 left-0 right-0 flex justify-between w-full p-4">
-              <div className="flex justify-between w-full">
-                <Button
-                  color="red"
-                  onClick={() => {
-                    axios.patch(
-                      `${
-                        import.meta.env.VITE_APP_EXPRESS_BASE_URL
-                      }/api/post/archivePost`,
-                      { postId: post.id },
-                    );
-                    setRefresh(refresh + 1);
-                  }}
-                >
-                  <TrashIcon />
-                </Button>
-                {editClicked && whoClickedEdit === post.id ? (
-                  <Button
-                    color="blue"
-                    onClick={() => {
-                      setEditClicked(false);
-                      setWhoClickedEdit(0);
-                      setEditFormData(defaultFormData);
-                    }}
-                  >
-                    <CrossIcon />
-                  </Button>
-                ) : null}
-                <Button
-                  color="green"
-                  onClick={async () => {
-                    if (!editClicked) {
-                      setEditClicked(true);
-                      setWhoClickedEdit(post.id);
-                    } else {
-                      await axios.patch(
-                        `${
-                          import.meta.env.VITE_APP_EXPRESS_BASE_URL
-                        }/api/post/updatePost`,
-                        {
-                          postId: post.id,
-                          title: editFormData.title,
-                          desc: editFormData.desc,
-                          price: editFormData.price,
-                        },
-                      );
-                      setRefresh(refresh + 1);
-                      setEditClicked(false);
-                      setWhoClickedEdit(0);
-                      setEditFormData(defaultFormData);
-                    }
-                  }}
-                >
-                  {editClicked && whoClickedEdit === post.id ? (
-                    <CheckIcon />
-                  ) : (
-                    <EditIcon />
-                  )}
-                </Button>
-              </div>
-            </div> */}
             </div>
           ))
         ) : (

@@ -760,6 +760,21 @@ const createReport = async (req, res) => {
   }
 };
 
+const removeImgFromPost = async (req, res) => {
+  const { url } = req.body;
+  const path = url.split('/');
+  const postId = path[3];
+  const filename = path[4];
+  const filePath = `uploads/posts/${postId}/${filename}`;
+  try {
+    fs.unlinkSync(filePath);
+    res.status(200).json({ message: 'Image removed successfully!' });
+  } catch (error) {
+    console.error('Failed to remove image:', error);
+    res.status(500).send({ error: 'Failed to remove image.' });
+  }
+};
+
 const addRoutes = (router) => {
   // router.post('/api/user/update-profile/:id', updateUserProfile);
 
@@ -808,6 +823,8 @@ const addRoutes = (router) => {
   router.post('/api/user/removeFromWishList', removeFromWishList);
   router.get('/api/user/getWishList/:id', getWishList);
   router.post('/api/report/createReport', createReport);
+
+  router.delete('/api/user/remove-image-from-post', removeImgFromPost);
 };
 
 module.exports = {
