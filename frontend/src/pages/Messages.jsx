@@ -19,6 +19,9 @@ export default function Messages({ socket }) {
   const messagesEndRef = useRef(null);
   const [localUser, setLocalUser] = useState({});
   const { user } = useAuth0();
+  const [chatList, setChatList] = useState([]);
+  const [selectedChatUser, setSelectedChatUser] = useState(null);
+  const [selectedChat, setSelectedChat] = useState(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -38,8 +41,16 @@ export default function Messages({ socket }) {
           `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/getUser`,
           { email: user.email },
         );
-        console.log('res', res.data);
+        const res2 = await axios.get(
+          `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/user/getChatList/${
+            res.data.id
+          }`,
+        );
         setLocalUser(res.data);
+        console.log('res user', res.data);
+        setChatList(res2.data);
+        console.log('res2 chat list', res2.data);
+        // return res.data;
       } catch (error) {
         console.log('error in getting user', error);
       }
@@ -53,6 +64,8 @@ export default function Messages({ socket }) {
     if (message !== '' && socket) {
       const messageWithName = {
         text: message,
+        to: selectedChatUser,
+        chat: selectedChat,
         name: localUser && localUser.name,
         time: new Date()
           .toLocaleTimeString([], {
@@ -69,11 +82,83 @@ export default function Messages({ socket }) {
     }
   };
 
+  const getMessages = async (chatId) => {
+    try {
+      const res = await axios.get(
+        `${
+          import.meta.env.VITE_APP_EXPRESS_BASE_URL
+        }/api/user/getChat/${chatId}`,
+      );
+      console.log('res messages', res.data);
+      const { messages, user1, user2 } = res.data;
+      const formattedMessages = messages.map((msg) => ({
+        text: msg.content,
+        to: msg.senderId === user1.id ? user1 : user2,
+        chat: res.data,
+        name: msg.senderId === user1.id ? user1.name : user2.name,
+        time: msg.createdAt,
+      }));
+      setMessages(
+        formattedMessages.sort((a, b) => {
+          const convertTo24Hour = (time) => {
+            const [, hours, minutes, modifier] = /(\d+):(\d+) (\w+)/.exec(time);
+            let hrs = parseInt(hours);
+            if (modifier === 'PM' && hrs < 12) hrs += 12;
+            else if (modifier === 'AM' && hrs === 12) hrs = 0;
+            return `${hrs}:${minutes}`;
+          };
+
+          return convertTo24Hour(a.time) > convertTo24Hour(b.time) ? 1 : -1;
+        }),
+      );
+    } catch (error) {
+      console.log('error in getting messages', error);
+    }
+  };
+
   return (
     <>
       <Navbar />
-      <div className="flex flex-col h-1/2 p-16 h-screen justify-center items-center">
-        <div className="relative bg-white w-1/2 h-3/4 rounded-t-lg overflow-y-auto">
+      <div className="fixed pt-14 w-1/6 h-screen bg-emerald-700">
+        <div className="text-white text-2xl p-2">Chats</div>
+        <div className="flex flex-col">
+          {chatList &&
+            chatList.map((chat, index) => (
+              <div
+                key={index}
+                className="p-2 m-2 hover:cursor-pointer hover:bg-emerald-600 hover:border-orange-500 rounded-lg text-white border-2 border-white"
+                onClick={() => {
+                  console.log('chat upon clicking', chat);
+                  setSelectedChatUser(
+                    chat.user1.id !== localUser.id ? chat.user1 : chat.user2,
+                  );
+                  setSelectedChat(chat);
+                  console.log('selected chat', selectedChat);
+                  getMessages(chat.id);
+                }}
+              >
+                {chat.user1.id !== localUser.id
+                  ? chat.user1.name
+                  : chat.user2.name}
+              </div>
+            ))}
+        </div>
+      </div>
+      <div className="flex flex-col h-1/2 pt-16 h-screen justify-center items-center">
+        <div className="flex w-1/2 bg-gray-500 rounded-t-lg p-2 text-white font-mono">
+          {selectedChatUser && selectedChatUser.name}
+          <div
+            className={`rounded-full ml-1 text-sm px-2 ${
+              selectedChatUser &&
+              (selectedChatUser.status === 'ONLINE'
+                ? 'bg-green-500'
+                : 'bg-gray-300')
+            }`}
+          >
+            o
+          </div>
+        </div>
+        <div className="relative bg-white w-1/2 h-3/4 overflow-y-auto">
           {messages.map((msg, index) => (
             <div
               key={index}
@@ -92,7 +177,7 @@ export default function Messages({ socket }) {
             </div>
           ))}
         </div>
-        <div className=" w-1/2 bottom-0 p-5 bg-gray-500 rounded-b-lg">
+        <div className="w-1/2 bottom-0 p-5 bg-gray-500 rounded-b-lg">
           <form>
             <div className="flex items-center space-x-3">
               <input

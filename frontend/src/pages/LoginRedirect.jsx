@@ -17,7 +17,6 @@ export default function LoginRedirect() {
             await newUser();
           }
           navigate('/');
-          // props.submit(user.email);
         } else {
           navigate('/login');
         }
@@ -40,6 +39,7 @@ export default function LoginRedirect() {
   };
 
   const newUser = async () => {
+    console.log('make a new user');
     try {
       await axios.post(
         `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/newUser`,

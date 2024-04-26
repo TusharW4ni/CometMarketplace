@@ -7,6 +7,11 @@ generator client {
   provider = "prisma-client-js"
 }
 
+enum Status {
+  ONLINE
+  OFFLINE
+}
+
 model User {
   id             Int        @id @default(autoincrement())
   email          String     @unique
@@ -18,7 +23,12 @@ model User {
   Reviews        Review[]
   WishList       WishList[]
   Report         Report[]
+  status         Status     @default(OFFLINE)
+  socketId       String?    @unique
   archived       Boolean    @default(false)
+  chats1         Chat[]     @relation("ChatToUser1")
+  chats2         Chat[]     @relation("ChatToUser2")
+  Message        Message[]
 }
 
 model Post {
@@ -36,11 +46,11 @@ model Post {
 }
 
 model Review {
-  id      Int     @id @default(autoincrement())
-  comment String?
-  rating  Int?
-  User    User    @relation(fields: [userId], references: [id])
-  userId  Int
+  id        Int      @id @default(autoincrement())
+  comment   String?
+  rating    Int?
+  User      User     @relation(fields: [userId], references: [id])
+  userId    Int
   createdAt DateTime @default(now())
 }
 
@@ -59,4 +69,23 @@ model Report {
   url               String
   reportType        String
   reportDescription String
+}
+
+model Chat {
+  id       Int       @id @default(autoincrement())
+  user1    User      @relation("ChatToUser1", fields: [user1Id], references: [id])
+  user1Id  Int
+  user2    User      @relation("ChatToUser2", fields: [user2Id], references: [id])
+  user2Id  Int
+  messages Message[]
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  content   String
+  createdAt String
+  chat      Chat     @relation(fields: [chatId], references: [id])
+  chatId    Int
+  sender    User     @relation(fields: [senderId], references: [id])
+  senderId  Int
 }
