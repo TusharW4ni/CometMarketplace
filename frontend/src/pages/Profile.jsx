@@ -28,6 +28,7 @@ import MenuIcon from '../assets/icons/MenuIcon';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import FormData from 'form-data';
 
 export function UpdateProfile({ refresh, setRefresh }) {
   const { hovered, ref } = useHover();
@@ -280,14 +281,6 @@ export function MyPosts() {
     }
   }, [localUser, refresh]);
 
-  useEffect(() => {
-    console.log(tempPhotos);
-  }, [tempPhotos]);
-
-  useEffect(() => {
-    setTempPhotos(selectedPost.photos);
-  }, [selectedPost.photos, opened]);
-
   const handlePriceChange = (event) => {
     // Remove all non-digit characters
     let rawValue = event.target.value.replace(/\D/g, '');
@@ -308,7 +301,7 @@ export function MyPosts() {
     setPrice(formattedValue);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (
       editFormData.desc === '' ||
       editFormData.price === '' ||
@@ -318,11 +311,51 @@ export function MyPosts() {
         position: 'top-center',
       });
     }
-    console.log('editFormData', editFormData);
-  };
+    console.log('updating editFormData', editFormData);
+    try {
+      await axios.patch(
+        `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/post/updatePost`,
+        {
+          ...editFormData,
+          postId: selectedPost.id,
+        },
+      );
+    } catch (error) {
+      console.error('Failed to update post:', error);
+    }
 
-  const handleServerRemovePhoto = (photoUrl) => {
-
+    let formDataObj = new FormData();
+    // console.log("files in edit post", files)
+    files.forEach((file) => {
+      formDataObj.append('files', file);
+    });
+    console.log('this is the fileDataObj from handleSumbit', formDataObj);
+    try {
+      // console.log('Try Catch block for updating post images');
+      await axios.post(
+        `${
+          import.meta.env.VITE_APP_EXPRESS_BASE_URL
+        }/api/user/updatePostImages/`,
+        formDataObj,
+        {
+          params: {
+            userId: localUser.id,
+            postId: selectedPost.id,
+          },
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        },
+      );
+      console.log('Successfully updated post images');
+    } catch (error) {
+      console.error('Failed to update post images:', error);
+    }
+    setFiles([]);
+    setPreviewUrls([]);
+    setEditFormData({ title: '', desc: '', price: '' });
+    setRefresh(refresh + 1);
+    close();
   };
 
   const handleFileChange = (event) => {
@@ -334,6 +367,10 @@ export function MyPosts() {
     setPreviewUrls(urls);
   };
 
+  useEffect(() => {
+    console.log('editFormData', editFormData);
+  }, [editFormData]);
+
   return (
     <>
       <ToastContainer />
@@ -341,7 +378,10 @@ export function MyPosts() {
         opened={opened}
         onClose={() => {
           close();
-          setTempPhotos([]);
+          setFiles([]);
+          setPreviewUrls([]);
+          setEditFormData({ title: '', desc: '', price: '' });
+          setRefresh(refresh + 1);
         }}
         size="auto"
         centered
@@ -362,24 +402,22 @@ export function MyPosts() {
               />
             </div>
             <div className="mt-5 grid grid-cols-3 gap-4">
-              {tempPhotos &&
-                tempPhotos.map((photo, index) => {
-                  const photoUrl = `${
-                    import.meta.env.VITE_APP_EXPRESS_BASE_URL
-                  }/${photo}`;
-                  return (
-                    <div key={index} className="relative">
-                      <img src={photoUrl} alt="Post" width={100} />
-
-                      <button
-                        className="absolute top-0 right-0 bg-gray-500 hover:bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
-                        onClick={() => handleServerRemovePhoto(photoUrl)}
-                      >
-                        X
-                      </button>
-                    </div>
-                  );
-                })}
+              {previewUrls.map((url, index) => (
+                <div key={index} className="relative">
+                  <img src={url} alt="" width={100} height={100} />
+                  <button
+                    className="absolute top-0 right-0 bg-gray-500 hover:bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                    onClick={() => {
+                      const newPreviewUrls = previewUrls.filter(
+                        (_, i) => i !== index,
+                      );
+                      setPreviewUrls(newPreviewUrls);
+                    }}
+                  >
+                    X
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
           <div className="flex flex-col space-y-2">
@@ -466,7 +504,7 @@ export function MyPosts() {
                   </Menu.Dropdown>
                 </Menu>
               </div>
-              <Carousel withIndicators loop>
+              <Carousel withIndicators>
                 {post.photos.map((photo) => (
                   <Carousel.Slide key={photo}>
                     <Image

@@ -22,12 +22,12 @@ const newUser = async (req, res) => {
 };
 
 const newPost = async (req, res) => {
-  console.log('this is req.body', req.body);
+  // console.log('this is req.body', req.body);
   const { title, desc, price, userId } = req.body;
   const user = await prisma.user.findUnique({
     where: { id: parseInt(userId) },
   });
-  console.log('user', user);
+  // console.log('user', user);
   if (!user) {
     return res.status(404).json({ error: 'User not found' });
   }
@@ -49,25 +49,29 @@ const newPost = async (req, res) => {
 
 const storageForPostPictures = multer.diskStorage({
   destination: (req, file, cb) => {
+    // console.log('dfadfadfadfaldkfja;skdca;ldkc');
     let dir;
     const { userId, postId } = req.query;
-    console.log('this is the userId inside storage', userId);
-    console.log('this is the file', file);
+    // console.log('this is the userId inside storage', userId);
+    // console.log('this is the file', file);
     if (postId) {
       dir = `uploads/posts/${userId}/${postId}`;
     } else {
       dir = `uploads/profilePicture/${userId}`;
     }
 
-    if (fs.existsSync(dir)) {
-      // Get an array of the files in the directory
-      const files = fs.readdirSync(dir);
+    // if (fs.existsSync(dir)) {
+    //   // Get an array of the files in the directory
+    //   const files = fs.readdirSync(dir);
 
-      // Delete each file
-      for (const file of files) {
-        fs.unlinkSync(path.join(dir, file));
-      }
-    } else {
+    //   // Delete each file
+    //   for (const file of files) {
+    //     fs.unlinkSync(path.join(dir, file));
+    //   }
+    // } else {
+    //   fs.mkdirSync(dir, { recursive: true });
+    // }
+    if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
     cb(null, dir);
@@ -75,12 +79,6 @@ const storageForPostPictures = multer.diskStorage({
   filename: (req, file, cb) => {
     const { postId } = req.query;
     let filename;
-
-    // if (postId) {
-    //   filename = uuidv4() + path.extname(file.originalname);
-    // } else {
-    //   filename = uuidv4() + path.extname(file.originalname);
-    // }
 
     filename = uuidv4() + path.extname(file.originalname);
 
@@ -91,7 +89,10 @@ const storageForPostPictures = multer.diskStorage({
 const uploadPostPictures = multer({ storage: storageForPostPictures });
 
 const handleUpload = async (req, res) => {
+  console.log('hit upload');
   const { userId, postId } = req.query;
+  console.log('userID', userId);
+  console.log('postId', postId);
   try {
     const photosFolder = `uploads/posts/${userId}/${postId}`;
     await prisma.post.update({
@@ -102,12 +103,35 @@ const handleUpload = async (req, res) => {
         photosFolder,
       },
     });
+    console.log('prisma update happened');
     res.status(200).json({ message: 'success' });
   } catch (error) {
     console.log('error in /api/user/add-images-to-new-post', error);
     return res.status(500).json({ error: error.message });
   }
 };
+
+const storageForUpdatedPostImages = multer.diskStorage({
+  destination: (req, file, cb) => {
+    let dir;
+    const { userId, postId } = req.query;
+    dir = `uploads/posts/${userId}/${postId}`;
+    //delete everything in the folder
+    if (fs.existsSync(dir)) {
+      const files = fs.readdirSync(dir);
+      for (const file of files) {
+        fs.unlinkSync(path.join(dir, file));
+      }
+    }
+    cb(null, dir);
+  },
+  filename: (req, file, cb) => {
+    let filename = uuidv4() + path.extname(file.originalname);
+    cb(null, filename);
+  },
+});
+
+const updatePostImages = multer({ storage: storageForUpdatedPostImages });
 
 // const getUserPosts = async (req, res) => {
 //   console.log(req.params);
@@ -166,59 +190,6 @@ const getUserPost = async (req, res) => {
   }
 };
 
-// const updateUserProfile = async (req, res) => {
-//   const { id } = req.params;
-//   console.log('this is req.body', req.body);
-//   const { displayName, username, pronouns, bio } = req.body;
-
-//   console.log('displayName: ', displayName);
-//   try {
-//     const update = await prisma.user.update({
-//       where: {
-//         id: parseInt(id),
-//       },
-//       data: {
-//         name: displayName,
-//         username: username,
-//         pronouns: pronouns,
-//         bio: bio,
-//       },
-//     });
-//     console.log(update);
-//     res.status(200).json(update);
-//   } catch (error) {
-//     console.log('error in /api/user/update-profile/:id', error);
-
-//     if (error.code == 'P2002') {
-//       res.status(409).json({ error: error });
-//     } else {
-//       res.status(500).json({ error: error });
-//     }
-//   }
-// };
-
-// const handleProfilePictureUpload = async (req, res) => {
-//   const { userId } = req.params;
-//   if (!req.file) {
-//     return res.status(400).send('No file uploaded.');
-//   }
-
-//   const profilePicturePath = req.file.path;
-
-//   try {
-//     await prisma.user.update({
-//       where: { id: parseInt(userId) },
-//       data: { profilePicture: profilePicturePath },
-//     });
-
-//     res.send({ message: 'Profile picture updated successfully!' });
-//   } catch (error) {
-//     console.error('Failed to upload profile picture:', error);
-//     res.status(500).send({ error: 'Failed to update profile picture.' });
-//   }
-// };
-
-// ----------------------------------------------------------
 const getUser = async (req, res) => {
   const { email } = req.body;
   try {
@@ -782,9 +753,16 @@ const addRoutes = (router) => {
   router.post('/api/user/new-post', newPost);
   router.post(
     '/api/user/add-images-to-new-post',
+    // (req, res, next) => {
+    //   console.log(req.body);
+    //   console.log(req.files);
+    //   next();
+    // },
     uploadPostPictures.array('files'),
     handleUpload,
   );
+
+  router.post(`/api/user/updatePostImages/`, updatePostImages.array('files'));
   // router.post(
   //   '/api/user/upload-profile-picture/:userId',
   //   upload.single('profilePicture'),
