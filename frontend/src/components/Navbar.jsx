@@ -11,11 +11,12 @@ import SearchIcon from '../assets/icons/SearchIcon';
 import { useContext } from 'react';
 import { SearchContext } from '../SearchContext';
 
-export default function Navbar({ refresh }) {
+export default function Navbar({ refresh, socket }) {
   const { searchTerm, setSearchTerm } = useContext(SearchContext);
   const navigate = useNavigate();
   const { user } = useAuth0();
   const [profilePicUrl, setProfilePicUrl] = useState(null);
+  const [status, setStatus] = useState(false);
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -24,6 +25,7 @@ export default function Navbar({ refresh }) {
           `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/getUser`,
           { email: user.email },
         );
+        // setStatus(response.data.status === 'ONLINE');
         response.data.profilePicture.includes('gravatar')
           ? setProfilePicUrl(response.data.profilePicture)
           : setProfilePicUrl(
@@ -40,6 +42,19 @@ export default function Navbar({ refresh }) {
       fetchUserDetails();
     }
   }, [user, refresh]);
+
+  useEffect(() => {
+    console.log('socket', socket);
+    if (!socket) return;
+    console.log('af so')
+    socket.on('user_connected', () => {
+      setStatus(true);
+      console.log("a;ldkfja;ldfkja;ldfja;dfj;adkjf;dkf")
+    });
+    socket.on('user_disconnected', () => {
+      setStatus(false);
+    });
+  }, [socket])
 
   return (
     <div className="flex fixed top-0 z-50 w-full p-2 bg-emerald-700 justify-between items-center ">
@@ -110,7 +125,7 @@ export default function Navbar({ refresh }) {
         </Tooltip>
       </div>
       {/* Profile Button */}
-      <div className="">
+      <div className="relative">
         <Tooltip label="Profile" position="bottom" openDelay={700}>
           <Avatar
             radius="xl"
@@ -119,6 +134,13 @@ export default function Navbar({ refresh }) {
             src={profilePicUrl ? profilePicUrl : user.picture}
           />
         </Tooltip>
+        {/* <div
+          className={`absolute bottom-0 right-0 rounded-full px-2 ${
+            status ? 'bg-green-500' : 'bg-gray-300'
+          } border-2 border-white text-gray text-xs`}
+        >
+          *
+        </div> */}
       </div>
     </div>
   );

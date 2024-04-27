@@ -42,6 +42,7 @@ model Post {
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
   WishList     WishList[]
+  Report       Report[]
   archived     Boolean    @default(false)
 }
 
@@ -66,7 +67,8 @@ model Report {
   id                Int    @id @default(autoincrement())
   user              User   @relation(fields: [userId], references: [id])
   userId            Int
-  url               String
+  post              Post   @relation(fields: [postId], references: [id])
+  postId            Int
   reportType        String
   reportDescription String
 }
@@ -81,11 +83,11 @@ model Chat {
 }
 
 model Message {
-  id        Int      @id @default(autoincrement())
+  id        Int    @id @default(autoincrement())
   content   String
   createdAt String
-  chat      Chat     @relation(fields: [chatId], references: [id])
+  chat      Chat   @relation(fields: [chatId], references: [id])
   chatId    Int
-  sender    User     @relation(fields: [senderId], references: [id])
+  sender    User   @relation(fields: [senderId], references: [id])
   senderId  Int
 }

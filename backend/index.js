@@ -22,6 +22,7 @@ io.on('connection', (socket) => {
     console.log('localUser.id', userId);
     users[userId] = socket.id;
     console.log('users object', users);
+    socket.emit('user_connected');
     await prisma.user.update({
       where: {
         id: userId,
@@ -37,20 +38,22 @@ io.on('connection', (socket) => {
     console.log('message ', msg);
     // socket.broadcast.emit('chat message', msg);
     socket.to(users[msg.to.id]).emit('chat message', msg);
-    const from = msg.name === msg.chat.user1.name ? msg.chat.user1.id : msg.chat.user2.id;
-    console.log("from id", from)
+    const from =
+      msg.name === msg.chat.user1.name ? msg.chat.user1.id : msg.chat.user2.id;
+    console.log('from id', from);
     await prisma.message.create({
       data: {
         content: msg.text,
         chatId: msg.chat.id,
         senderId: from,
         createdAt: msg.time,
-      }
-    })
+      },
+    });
   });
 
   socket.on('disconnect', async () => {
     const userId = Object.keys(users).find((key) => users[key] === socket.id);
+    socket.to(users[userId]).emit('user_disconnected', 'disconnected');
     if (userId) {
       delete users[userId];
     }

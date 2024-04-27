@@ -10,12 +10,14 @@ import BookmarkIcon from '../assets/icons/BookmarkIcon';
 import ReportPostIcon from '../assets/icons/ReportPostIcon';
 import BookmarkFilledIcon from '../assets/icons/BookmarkFilledIcon';
 
-export default function Home() {
+export default function Home({ socket }) {
   const navigate = useNavigate();
   const { user } = useAuth0();
   const [posts, setPosts] = useState([]);
   const [currUser, setCurrUser] = useState({});
   const [refresh, setRefresh] = useState(false);
+  const [profilePicture, setProfilePicture] = useState('');
+  const [status, setStatus] = useState(false);
   useEffect(() => {
     const getUserAndPosts = async () => {
       try {
@@ -23,6 +25,15 @@ export default function Home() {
           `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/getUser`,
           { email: user.email },
         );
+        setProfilePicture(
+          userRes.data.profilePictureFile
+            ? `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/${
+                userRes.data.profilePictureFile
+              }`
+            : user.picture,
+        );
+        setStatus(userRes.data.status === 'ONLINE');
+        console.log('userRes.data', userRes.data);
         setCurrUser(userRes.data);
         const postsRes = await axios.get(
           `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/getAllPosts`,
@@ -56,12 +67,7 @@ export default function Home() {
 
   return (
     <>
-      <Navbar />
-      <div className="fixed bottom-0 right-0 m-10 z-10">
-        <ActionIcon size="xl" color="red" onClick={() => navigate('/report')}>
-          <ReportPostIcon />
-        </ActionIcon>
-      </div>
+      <Navbar socket={socket} />
       <div className="mt-20">
         <div className="flex justify-center text-2xl text-white uppercase font-mono">
           Marketplace
@@ -127,7 +133,25 @@ export default function Home() {
                       navigate(`/profile/${post.user.id}`);
                     }}
                   >
-                    <div className="">{post.user.email}</div>
+                    {/* <div className="">{post.user.email}</div> */}
+                    <div className="flex items-center space-x-3">
+                      <div className="relative">
+                        <span>
+                          <Avatar
+                            size="lg"
+                            src={profilePicture && profilePicture}
+                          />
+                        </span>
+                        {/* <div
+                          className={`absolute bottom-0 right-0 rounded-full px-2 ${
+                            status ? 'bg-green-500' : 'bg-gray-300'
+                          } border-2 border-white text-gray text-xs`}
+                        >
+                          *
+                        </div> */}
+                      </div>
+                      <span>{post.user.email}</span>
+                    </div>
                   </div>
                 </div>
               </div>

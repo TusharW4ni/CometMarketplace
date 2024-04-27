@@ -862,12 +862,12 @@ const getWishList = async (req, res) => {
 };
 
 const createReport = async (req, res) => {
-  const { userId, url, reportType, reportDescription } = req.body;
+  const { userId, postId, reportType, reportDescription } = req.body;
   try {
     await prisma.report.create({
       data: {
         userId: parseInt(userId),
-        url: url,
+        postId: parseInt(postId),
         reportType: reportType,
         reportDescription: reportDescription,
       },
@@ -945,7 +945,6 @@ const getChat = async (req, res) => {
         id: parseInt(id),
       },
       include: {
-        
         user1: true,
         user2: true,
         messages: true,

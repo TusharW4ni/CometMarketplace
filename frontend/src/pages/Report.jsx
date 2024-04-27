@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button, TextInput, Select, Textarea } from '@mantine/core';
 import { useAuth0 } from '@auth0/auth0-react';
 
-function Report() {
+function Report({ item }) {
   const navigate = useNavigate();
   const { user } = useAuth0();
   const [formData, setFormData] = useState({

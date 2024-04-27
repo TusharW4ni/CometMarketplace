@@ -58,18 +58,21 @@ export default function App() {
       <SearchContext.Provider value={{ searchTerm, setSearchTerm }}>
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<Home socket={socket} />} />
             <Route path="/not-authorized" element={<NotAuthorized />} />
             <Route path="/login-redirect" element={<LoginRedirect />} />
-            <Route path="/make-post" element={<MakePost />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/profile/:id" element={<PublicProfile />} />
+            <Route path="/make-post" element={<MakePost socket={socket} />} />
+            <Route path="/profile" element={<Profile socket={socket} />} />
+            <Route
+              path="/profile/:id"
+              element={<PublicProfile socket={socket} />}
+            />
             <Route path="/messages" element={<Messages socket={socket} />} />
-            <Route path="/item/:id" element={<ItemPage />} />
-            <Route path="/my-posts" element={<MyPosts />} />
-            <Route path="/edit-post/:postID" element={<EditPost />} />
-            <Route path="/report" element={<Report />} />
-            <Route path="/search" element={<Search />} />
+            <Route path="/item/:id" element={<ItemPage socket={socket} />} />
+            {/* <Route path="/my-posts" element={<MyPosts />} /> */}
+            {/* <Route path="/edit-post/:postID" element={<EditPost />} /> */}
+            <Route path="/report" element={<Report socket={socket} />} />
+            <Route path="/search" element={<Search socket={socket} />} />
           </Routes>
         </BrowserRouter>
       </SearchContext.Provider>
