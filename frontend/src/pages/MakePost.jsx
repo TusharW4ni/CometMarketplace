@@ -129,7 +129,7 @@ export default function MakePost() {
       <Navbar />
       <ToastContainer />
       {isPosted && (
-        <div className="mt-16 text-center py-4 lg:px-4">
+        <div className="pt-16 text-center py-4 lg:px-4">
           <div
             className="p-2 bg-orange-500 items-center text-black leading-none lg:rounded-full flex lg:inline-flex"
             role="alert"
@@ -143,11 +143,14 @@ export default function MakePost() {
           </div>
         </div>
       )}
-      <div className="mt-16 flex flex-col items-center">
-        <div className="space-y-5">
-          <h1 className="text-2xl font-bold text-white mt-5">Item for Sale</h1>
-          <div className="flex space-x-40">
-            <div>
+      <div className="pt-16 flex flex-col items-center justify-center min-h-screen">
+        <div className="flex justify-center text-2xl text-white uppercase font-mono fixed top-0 mt-20">
+          New Post
+        </div>
+        <div className="flex ">
+          {/* <h1 className="text-2xl font-bold text-white mt-5">Item for Sale</h1> */}
+          <div className="grid grid-cols-2 place-items-center place-justify-center">
+            <div className="space-y-3">
               <Button component="label" htmlFor="fileUpload">
                 Upload Photos
               </Button>
@@ -158,7 +161,7 @@ export default function MakePost() {
                 style={{ display: 'none' }}
                 multiple
               />
-              <div className="mt-5 grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 {previewUrls.map((url, index) => (
                   <div key={index} className="relative">
                     <img src={url} alt="Preview" width={100} height={100} />
@@ -172,7 +175,7 @@ export default function MakePost() {
                 ))}
               </div>
             </div>
-            <div className="flex flex-col space-y-2">
+            <div className="flex justify-center flex-col space-y-2">
               <label htmlFor="title" className="text-white">
                 Title
               </label>
