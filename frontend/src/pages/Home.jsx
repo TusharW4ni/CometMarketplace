@@ -63,6 +63,9 @@ export default function Home() {
         </ActionIcon>
       </div>
       <div className="mt-20">
+        <div className="flex justify-center text-2xl text-white uppercase font-mono">
+          Marketplace
+        </div>
         <div className="grid grid-cols-1 p-5 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {posts.length > 0 ? (
             posts.map((post) => (
