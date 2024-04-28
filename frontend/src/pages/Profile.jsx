@@ -589,6 +589,7 @@ export function WishList({ refresh, setRefresh }) {
                   color=""
                   className="relative top-0 right-0 m-2 hover:cursor-pointer"
                   onClick={() => handleBookmarkSlashClick(post)}
+                  variant="transparent"
                 >
                   <BookmarkFilledSlashIcon />
                 </ActionIcon>

@@ -105,6 +105,7 @@ export default function Home({ socket }) {
                         <ActionIcon
                           className="absolute top-0 right-0 m-2 hover:cursor-pointer"
                           onClick={() => handleBookmarkClick(post.id)}
+                          variant="transparent"
                         >
                           {/* <div className="bg-red-500"> */}
                             <BookmarkFilledIcon />
@@ -114,6 +115,7 @@ export default function Home({ socket }) {
                         <ActionIcon
                           className="absolute top-0 right-0 m-2 hover:cursor-pointer"
                           onClick={() => handleBookmarkClick(post.id)}
+                          variant='transparent'
                         >
                           <BookmarkIcon />
                         </ActionIcon>
