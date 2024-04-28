@@ -562,6 +562,21 @@ const getAllPosts = async (req, res) => {
       } else {
         post.photos = [];
       }
+
+      // Add the profile picture to the post object
+      if (post.user && post.user.profilePicture) {
+        const profilePictureDir = post.user.profilePicture;
+        if (fs.existsSync(profilePictureDir)) {
+          const files = fs.readdirSync(profilePictureDir);
+          console.log('files', files);
+          if (files.length > 0) {
+            // Assuming the first file in the directory is the profile picture
+            const profilePictureFile = `${profilePictureDir}/${files[0]}`;
+            console.log('profilePictureFile', profilePictureFile);
+            post.user = { ...post.user, profilePictureFile: profilePictureFile };
+          }
+        }
+      }
     }
 
     res.status(200).json(posts);

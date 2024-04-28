@@ -25,20 +25,25 @@ export default function Home({ socket }) {
           `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/getUser`,
           { email: user.email },
         );
-        setProfilePicture(
-          userRes.data.profilePictureFile
-            ? `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/${
-                userRes.data.profilePictureFile
-              }`
-            : user.picture,
-        );
+
         setStatus(userRes.data.status === 'ONLINE');
         console.log('userRes.data', userRes.data);
         setCurrUser(userRes.data);
         const postsRes = await axios.get(
           `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/getAllPosts`,
         );
-        console.log('postsRes.data.posts', postsRes.data);
+        // console.log('postsRes.data', postsRes.data);
+        // console.log("postsRes.data.user", postsRes.data.user)
+        // console.log('befor eurl');
+        // const url = `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/${
+        //   postsRes.data.user.profilePictureFile
+        // }`;
+        // console.log('asdfadfa url', url);
+        // setProfilePicture(postsRes.data.user.profilePictureFile ? url : null);
+        // console.log(
+        //   'postsRes.data.user',
+        //   postsRes.data.user.profilePictureFile,
+        // );
         setPosts(postsRes.data);
       } catch (error) {
         console.log('error in getUser', error);
@@ -139,7 +144,13 @@ export default function Home({ socket }) {
                         <span>
                           <Avatar
                             size="lg"
-                            src={profilePicture && profilePicture}
+                            src={
+                              post.user.profilePictureFile
+                                ? `${
+                                    import.meta.env.VITE_APP_EXPRESS_BASE_URL
+                                  }/${post.user.profilePictureFile}`
+                                : null
+                            }
                           />
                         </span>
                         {/* <div
