@@ -3,12 +3,13 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useAuth0 } from '@auth0/auth0-react';
 import { Carousel } from '@mantine/carousel';
-import { Image, Avatar, ActionIcon } from '@mantine/core';
+import { Image, Avatar, ActionIcon, Button } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 import PublicProfile from './PublicProfile';
 import BookmarkIcon from '../assets/icons/BookmarkIcon';
 import ReportPostIcon from '../assets/icons/ReportPostIcon';
 import BookmarkFilledIcon from '../assets/icons/BookmarkFilledIcon';
+import MessagesIcon from '../assets/icons/MessagesIcon';
 
 export default function Home({ socket }) {
   const navigate = useNavigate();
@@ -108,14 +109,14 @@ export default function Home({ socket }) {
                           variant="transparent"
                         >
                           {/* <div className="bg-red-500"> */}
-                            <BookmarkFilledIcon />
+                          <BookmarkFilledIcon />
                           {/* </div> */}
                         </ActionIcon>
                       ) : (
                         <ActionIcon
                           className="absolute top-0 right-0 m-2 hover:cursor-pointer"
                           onClick={() => handleBookmarkClick(post.id)}
-                          variant='transparent'
+                          variant="transparent"
                         >
                           <BookmarkIcon />
                         </ActionIcon>
@@ -136,38 +137,54 @@ export default function Home({ socket }) {
                   <p className="text-gray-700 text-base flex justify-center mt-2 bg-orange-300 p-2 rounded-lg">
                     {post.desc}
                   </p>
-                  <div
-                    className="flex flex-col bg-orange-300 mt-3 p-4 rounded-lg justify-center items-center hover:underline hover:cursor-pointer hover:bg-orange-500"
-                    onClick={() => {
-                      navigate(`/profile/${post.user.id}`);
-                    }}
-                  >
-                    {/* <div className="">{post.user.email}</div> */}
-                    <div className="flex items-center space-x-3">
-                      <div className="relative">
-                        <span>
-                          <Avatar
-                            size="lg"
-                            src={
-                              post.user.profilePictureFile
-                                ? `${
-                                    import.meta.env.VITE_APP_EXPRESS_BASE_URL
-                                  }/${post.user.profilePictureFile}`
-                                : null
-                            }
-                          />
-                        </span>
-                        {/* <div
+                  {/* <div className="flex"> */}
+                    <div
+                      className="flex flex-col bg-orange-300 mt-3 p-4 rounded-lg justify-center items-center hover:underline hover:cursor-pointer hover:bg-orange-500"
+                      onClick={() => {
+                        navigate(`/profile/${post.user.id}`);
+                      }}
+                    >
+                      {/* <div className="">{post.user.email}</div> */}
+                      <div className="flex items-center space-x-3 w-full justify-center relative">
+                        <div className="relative flex space-x-2 items-center">
+                          <span>
+                            <Avatar
+                              size="lg"
+                              src={
+                                post.user.profilePictureFile
+                                  ? `${
+                                      import.meta.env.VITE_APP_EXPRESS_BASE_URL
+                                    }/${post.user.profilePictureFile}`
+                                  : null
+                              }
+                            />
+                          </span>
+
+                          {/* <div
                           className={`absolute bottom-0 right-0 rounded-full px-2 ${
                             status ? 'bg-green-500' : 'bg-gray-300'
                           } border-2 border-white text-gray text-xs`}
                         >
                           *
                         </div> */}
+                          <span>{post.user.name}</span>
+                        </div>
                       </div>
-                      <span>{post.user.email}</span>
                     </div>
-                  </div>
+                    {/* <div className="">
+                      <ActionIcon
+                        size="lg"
+                        color="orange"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // handleMessageClick
+                        }}
+                        // loading={messageLoading}
+                      >
+                        <MessagesIcon />
+                      </ActionIcon>
+                    </div> */}
+                  {/* </div> */}
                 </div>
               </div>
             ))
