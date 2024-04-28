@@ -18,6 +18,13 @@ export default function MakePost() {
     price: 0,
     desc: '',
   });
+  const [ogFormData, setOgFormData] = useState({
+    title: '',
+    price: 0,
+    desc: '',
+  });
+  const [ogFiles, setOgFiles] = useState([]);
+  const [showCancel, setShowCancel] = useState(false);
   const [isPosted, setIsPosted] = useState(false);
 
   useEffect(() => {
@@ -30,11 +37,34 @@ export default function MakePost() {
       setFormData({ ...formData, userId: response.data.id });
     };
     fetchUser();
+    // setOgFormData({ ...formData });
+    // setOgFiles([...files]);
   }, []);
+
+  useEffect(() => {
+    if (
+      formData.desc !== ogFormData.desc ||
+      formData.title !== ogFormData.title ||
+      formData.price !== ogFormData.price
+    ) {
+      setShowCancel(true);
+    }
+    if (JSON.stringify(files) !== JSON.stringify(ogFiles)) {
+      setShowCancel(true);
+    }
+  }, [formData, files]);
 
   useEffect(() => {
     console.log('this is the MakePost formData', formData);
   }, [formData]);
+
+  const handleCancel = () => {
+    setFormData({ ...ogFormData });
+    setFiles([...ogFiles]);
+    setPreviewUrls([]);
+    setPrice('');
+    setShowCancel(false);
+  };
 
   const handleFileChange = (event) => {
     const uploadedFiles = Array.from(event.target.files);
@@ -188,6 +218,7 @@ export default function MakePost() {
                 onChange={(e) =>
                   setFormData({ ...formData, title: e.target.value })
                 }
+                value={formData.title}
               />
               <label htmlFor="price" className="text-white">
                 Price
@@ -207,10 +238,14 @@ export default function MakePost() {
                 onChange={(e) =>
                   setFormData({ ...formData, desc: e.target.value })
                 }
+                value={formData.desc}
               />
-              <Button color="orange" onClick={handleSubmit}>
-                Post
-              </Button>
+              <div className="flex justify-between">
+                {showCancel && <Button onClick={handleCancel}>Cancel</Button>}
+                <Button color="orange" onClick={handleSubmit}>
+                  Post
+                </Button>
+              </div>
             </div>
           </div>
         </div>
