@@ -22,6 +22,7 @@ import CrossIcon from '../assets/icons/CrossIcon';
 import { useHover } from '@mantine/hooks';
 import BookmarkFilledIcon from '../assets/icons/BookmarkFilledIcon';
 import { ToastContainer, toast } from 'react-toastify';
+import BookmarkFilledSlashIcon from '../assets/icons/BookmarkFilledSlashIcon';
 
 export function UpdateProfile({ refresh, setRefresh }) {
   const { hovered, ref } = useHover();
@@ -570,11 +571,11 @@ export function WishList({ refresh, setRefresh }) {
             <div className="px-6 py-4">
               <div className="flex space-x-5">
                 <ActionIcon
-                  color="red"
+                  color=""
                   className="relative top-0 right-0 m-2 hover:cursor-pointer"
                   onClick={() => handleBookmarkSlashClick(post)}
                 >
-                  <BookmarkFilledIcon />
+                  <BookmarkFilledSlashIcon />
                 </ActionIcon>
                 <div
                   className=" flex-grow font-bold bg-orange-500 p-1 rounded-full justify-center flex text-xl mb-2 hover:cursor-pointer hover:text-blue-300 hover:underline"

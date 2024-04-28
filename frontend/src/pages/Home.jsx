@@ -106,7 +106,9 @@ export default function Home({ socket }) {
                           className="absolute top-0 right-0 m-2 hover:cursor-pointer"
                           onClick={() => handleBookmarkClick(post.id)}
                         >
-                          <BookmarkFilledIcon />
+                          {/* <div className="bg-red-500"> */}
+                            <BookmarkFilledIcon />
+                          {/* </div> */}
                         </ActionIcon>
                       ) : (
                         <ActionIcon
