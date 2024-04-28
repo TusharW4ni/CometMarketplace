@@ -127,7 +127,7 @@ export function UpdateProfile({ refresh, setRefresh }) {
       }
     }
     // setShowConfirmation(true);
-    setTimeout(() => {
+    // setTimeout(() => {
       setRefresh(refresh + 1);
       setFormData({
         name: '',
@@ -136,7 +136,7 @@ export function UpdateProfile({ refresh, setRefresh }) {
         bio: '',
         profilePicture: '',
       });
-    }, 1000);
+    // }, 1000);
   };
 
   const showToast = () => {
