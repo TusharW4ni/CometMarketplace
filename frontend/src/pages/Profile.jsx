@@ -23,6 +23,7 @@ import { useHover } from '@mantine/hooks';
 import BookmarkFilledIcon from '../assets/icons/BookmarkFilledIcon';
 import { ToastContainer, toast } from 'react-toastify';
 import BookmarkFilledSlashIcon from '../assets/icons/BookmarkFilledSlashIcon';
+// import { ToastContainer, toast } from 'react-toastify';
 
 export function UpdateProfile({ refresh, setRefresh }) {
   const { hovered, ref } = useHover();
@@ -89,6 +90,14 @@ export function UpdateProfile({ refresh, setRefresh }) {
   }, [formData]);
 
   const onUpdate = async () => {
+    if (JSON.stringify(formData) === JSON.stringify(originalFormData)) {
+      return;
+    }
+    if (formData.name === '' || formData.pronouns === '') {
+      toast.error('Name and Pronouns are required!', {
+        position: 'top-center',
+      });
+    }
     try {
       await axios.patch(
         `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/user/updateProfile`,
@@ -117,10 +126,7 @@ export function UpdateProfile({ refresh, setRefresh }) {
         console.error('Failed to update profile picture:', error);
       }
     }
-    setShowConfirmation(true);
-    // toast.success('Profile Updated!', {
-    //   position: 'top-center',
-    // });
+    // setShowConfirmation(true);
     setTimeout(() => {
       setRefresh(refresh + 1);
       setFormData({
@@ -131,6 +137,12 @@ export function UpdateProfile({ refresh, setRefresh }) {
         profilePicture: '',
       });
     }, 1000);
+  };
+
+  const showToast = () => {
+    toast.success('Profile Updated!', {
+      position: 'top-center',
+    });
   };
 
   const handleImgUpload = (event) => {
@@ -196,10 +208,12 @@ export function UpdateProfile({ refresh, setRefresh }) {
             className="w-2/4 space-y-5"
             onSubmit={(event) => {
               event.preventDefault();
+              showToast();
               onUpdate();
             }}
           >
             <TextInput
+              required
               ref={ref}
               label="Name"
               value={formData.name}
@@ -214,6 +228,7 @@ export function UpdateProfile({ refresh, setRefresh }) {
               <TextInput label="Email" disabled value={formData.email} />
             </Tooltip>
             <TextInput
+              required
               label="Pronouns"
               value={formData.pronouns}
               onChange={(event) =>
@@ -224,7 +239,7 @@ export function UpdateProfile({ refresh, setRefresh }) {
               }
             />
             <Textarea
-              label="Bio"
+              label="Bio (optional)"
               resize="vertical"
               value={formData.bio}
               onChange={(event) =>
