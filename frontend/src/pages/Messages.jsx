@@ -144,7 +144,7 @@ export default function Messages({ socket }) {
             ))}
         </div>
       </div>
-      <div className="flex flex-col h-1/2 pt-16 h-screen justify-center items-center">
+      {selectedChat && <div className="flex flex-col h-1/2 pt-16 h-screen justify-center items-center">
         <div className="flex w-1/2 bg-gray-500 rounded-t-lg p-2 text-white font-mono">
           {selectedChatUser && selectedChatUser.name}
           <div
@@ -201,7 +201,7 @@ export default function Messages({ socket }) {
             </div>
           </form>
         </div>
-      </div>
+      </div>}
     </>
   );
 }
