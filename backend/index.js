@@ -1,8 +1,35 @@
 const express = require('express');
 const dotenv = require('dotenv').config();
+var nodemailer = require('nodemailer');
 
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+
+// var transporter = nodemailer.createTransport({
+//   service: 'gmail',
+//   auth: {
+//     user: 'reachtusharwani@gmail.com',
+//     pass: '',
+//   },
+// });
+
+const transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false, // use SSL
+  auth: {
+    user: 'futuremarswalkerwilliams@gmail.com',
+    pass: '',
+  },
+});
+
+// transporter.verify(function (error, success) {
+//   if (error) {
+//     console.log(error);
+//   } else {
+//     console.log('Server is ready to take our messages');
+//   }
+// });
 
 const io = require('socket.io')(5002, {
   cors: {
@@ -17,7 +44,6 @@ io.on('connection', (socket) => {
   // users.push(socket.id);
   // console.log('users array', users);
   console.log('a user connected', socket.id);
-
   socket.on('user_connected', async (userId) => {
     console.log('localUser.id', userId);
     users[userId] = socket.id;
@@ -37,6 +63,36 @@ io.on('connection', (socket) => {
   socket.on('chat message', async (msg) => {
     console.log('message ', msg);
     // socket.broadcast.emit('chat message', msg);
+    const toUserObj = await prisma.user.findUnique({
+      where: {
+        id: msg.to.id,
+      },
+    });
+    console.log('to user obj', toUserObj);
+    if (toUserObj.status === 'OFFLINE') {
+      var mailOptions = {
+        from: 'reachtusharwani@gmail.com',
+        to: toUserObj.email,
+        subject: `New message from ${
+          msg.name === msg.chat.user1.name
+            ? msg.chat.user1.name
+            : msg.chat.user2.name
+        }`,
+        text: `You have a new message from ${
+          msg.name === msg.chat.user1.name
+            ? msg.chat.user1.name
+            : msg.chat.user2.name
+        }. It says: "${msg.text}" at ${msg.time}. Please login at http://localhost:5173/ to reply to the message.`,
+      };
+      console.log('mail options', mailOptions);
+      // transporter.sendMail(mailOptions, function (error, info) {
+      //   if (error) {
+      //     console.log(error);
+      //   } else {
+      //     console.log('Email sent: ' + info.response);
+      //   }
+      // });
+    }
     socket.to(users[msg.to.id]).emit('chat message', msg);
     const from =
       msg.name === msg.chat.user1.name ? msg.chat.user1.id : msg.chat.user2.id;
