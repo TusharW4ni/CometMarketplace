@@ -114,7 +114,10 @@ export default function MakePost() {
           },
         },
       );
-      setIsPosted(true);
+      // setIsPosted(true);
+      toast.success('Your post has been created', {
+        position: 'top-center',
+      });
       setTimeout(() => {
         setIsPosted(false);
         window.location.reload();
