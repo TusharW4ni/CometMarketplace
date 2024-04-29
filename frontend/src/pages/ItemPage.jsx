@@ -19,18 +19,16 @@ import { useNavigate } from 'react-router-dom';
 import ReportPostIcon from '../assets/icons/ReportPostIcon';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+//import Zoom from 'react-img-zoom-gdn';
+
+import ImageZoom from 'react-image-zooom';
 
 function Report({ item, profilePicture }) {
   const navigate = useNavigate();
   const [opened, { open, close }] = useDisclosure();
   const { user } = useAuth0();
   // console.log('item', item);
-  const [formData, setFormData] = useState({
-    userId: '',
-    postId: item.id,
-    reportType: '',
-    reportDescription: '',
-  });
+  const [formData, setFormData] = useState({});
 
   useEffect(() => {
     const getUser = async () => {
@@ -39,13 +37,16 @@ function Report({ item, profilePicture }) {
           `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/getUser`,
           { email: user.email },
         );
-        setFormData({ ...formData, userId: userRes.data.id });
+        setFormData({ ...formData, userId: userRes.data.id, postId: item.id });
+        console.log('added userid ', formData);
       } catch (error) {
         console.log('error in getUser', error);
       }
     };
     if (user) {
       getUser();
+      //setFormData();
+      console.log('formed defautl', formData);
     }
   }, [opened]);
 
@@ -54,15 +55,17 @@ function Report({ item, profilePicture }) {
   }, [formData]);
 
   const createReport = async () => {
+    console.log('formData', formData);
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_APP_EXPRESS_BASE_URL}/api/report/createReport`,
         formData,
       );
       toast.success(
-        'Report submitted successfully! We will look into this ASAP.', {
+        'Report submitted successfully! We will look into this ASAP.',
+        {
           position: 'top-center',
-        }
+        },
       );
       console.log('res', res.data);
       close();
@@ -87,7 +90,7 @@ function Report({ item, profilePicture }) {
           close();
           setFormData({
             userId: '',
-            postId: item.id,
+            postId: '',
             reportType: '',
             reportDescription: '',
           });
@@ -138,7 +141,7 @@ function Report({ item, profilePicture }) {
                   <span>
                     <Avatar size="lg" src={profilePicture && profilePicture} />
                   </span>
-                  <span>{item.user && item.user.email}</span>
+                  <span>{item.user && item.user.name}</span>
                 </div>
               </div>
             </div>
@@ -232,7 +235,7 @@ export default function ItemPage() {
   return (
     <>
       <Navbar />
-      <Report item={item} profilePicture={profilePicture} />
+      <Report item={item && item} profilePicture={profilePicture} />
       <div className="flex items-center justify-center p-44 space-x-20">
         <div className="bg-orange-200 p-3 rounded-lg">
           <Carousel withIndicators>

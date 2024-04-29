@@ -128,14 +128,14 @@ export function UpdateProfile({ refresh, setRefresh }) {
     }
     // setShowConfirmation(true);
     // setTimeout(() => {
-      setRefresh(refresh + 1);
-      setFormData({
-        name: '',
-        email: '',
-        pronouns: '',
-        bio: '',
-        profilePicture: '',
-      });
+    setRefresh(refresh + 1);
+    setFormData({
+      name: '',
+      email: '',
+      pronouns: '',
+      bio: '',
+      profilePicture: '',
+    });
     // }, 1000);
   };
 
@@ -287,6 +287,7 @@ export function MyPosts() {
   const [refresh, setRefresh] = useState(0);
   const { user } = useAuth0();
   const [localUser, setLocalUser] = useState(null);
+  // const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -307,6 +308,7 @@ export function MyPosts() {
   }, [refresh]);
 
   useEffect(() => {
+    // setIsLoading(true);
     const getUserPosts = async () => {
       try {
         const res = await axios.get(
@@ -315,6 +317,7 @@ export function MyPosts() {
           }/api/user/getPostsForUser/${localUser.id}`,
         );
         setMyPosts(res.data);
+        // setIsLoading(false);
         console.log('myPosts', res.data);
       } catch (error) {
         console.error('Failed to fetch user posts:', error);
@@ -341,20 +344,23 @@ export function MyPosts() {
     }
   }, [whoClickedEdit]);
 
+  const [key, setKey] = useState(Math.random());
+
+  // useEffect(() => {
+  //   setKey(Math.random());
+  // }, []);
+
   return (
     <div className="grid grid-cols-1 p-5 md:grid-cols-2 lg:grid-cols-3 gap-10 pt-20 pl-36">
       {myPosts && myPosts.length > 0 ? (
         myPosts.map((post) => (
-          <div
-            key={post.id}
-            className="rounded overflow-hidden shadow-lg p-6 bg-orange-200"
-          >
+          <div key={post.id} className="rounded shadow-lg p-6 bg-orange-200">
             {/* {editClicked ? (
               <div className="fixed z-10 bg-white m-2 p-2 rounded-full hover:cursor-pointer ">
                 <EditIcon />
               </div>
             ) : null} */}
-            <Carousel withIndicators loop>
+            <Carousel withIndicators>
               {post.photos.map((photo) => (
                 <Carousel.Slide key={photo}>
                   <Image

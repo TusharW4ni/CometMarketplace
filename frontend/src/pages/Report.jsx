@@ -10,6 +10,7 @@ function Report({ item }) {
   const { user } = useAuth0();
   const [formData, setFormData] = useState({
     userId: '',
+    postId: '',
     url: '',
     reportType: '',
     reportDescription: '',
