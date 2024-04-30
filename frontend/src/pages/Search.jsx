@@ -179,7 +179,7 @@ export default function Search() {
                       navigate(`/profile/${post.user.id}`);
                     }}
                   >
-                    <div className="">{post.user.email}</div>
+                    <div className="">{post.user.name}</div>
                   </div>
                 </div>
               </div>

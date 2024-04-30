@@ -622,7 +622,7 @@ export function WishList({ refresh, setRefresh }) {
                   navigate(`/profile/${post.post.user.id}`);
                 }}
               >
-                <div className="">{post.post.user.email}</div>
+                <div className="">{post.post.user.name}</div>
               </div>
             </div>
           </div>
