@@ -7,7 +7,14 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-async function main() {}
+async function main() {
+  await prisma.user.create({
+    data: {
+      email: 'tmw220003@utdallas.edu',
+      name: 'Tushar',
+    },
+  });
+}
 
 main()
   .then(async () => {
